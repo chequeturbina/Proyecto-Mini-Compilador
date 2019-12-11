@@ -20,6 +20,7 @@ devolver 'devolver'
 or 'oo'
 and 'yy'
 not 'no'
+terminar 'terminar'
 verd 'verdadero'
 fals 'falso'
 relacional (\<|\>|\<\=|\>\=|\=\=|\<\>)
@@ -74,6 +75,7 @@ caracter [a-zA-Z]+
 {coma} {printf("<token,%s>\n",yytext),return 31;}
 {var} {printf("<token,%s>\n",yytext),return 32;}
 {func} {printf("<token,%s>\n",yytext),return 33;}
+{terminar} {printf("<token,%s>\n",yytext),return 36;}
 
 {caracter} {printf("<caracter,%s>\n",yytext),return 4;}
 {cadena} {printf("<cadena,%s>\n",yytext),return 3;}
