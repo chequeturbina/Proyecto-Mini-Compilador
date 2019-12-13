@@ -43,10 +43,18 @@ funciones: FUNC tipo ID ( argumentos ) INICIO declaraciones sentencias FIN funci
            ;
 
 // 9. argumentos -> lista_arg | sin
+argumentos: lista_arg
+            | SIN
+            ;
 
 // 10. lista_arg -> lista_arg arg | arg
+lista_arg: lista_arg arg
+           | arg
+           ;
 
 // 11. arg -> tipo_arg id
+arg: tipo_arg ID
+     ;
 
 // 12. tipo_arg -> base param_arr
 
