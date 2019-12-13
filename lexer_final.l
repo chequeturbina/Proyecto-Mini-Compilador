@@ -21,35 +21,38 @@ dreal_3 [+-]?[0-9]*"."[0-9]+
 
 id [a-zA-Z_][a-zA-Z0-9_]{0,31}
 cadena [.^\t ]+
-caracter [a-zA-Z]+
+caracter [a-zA-Z]
 
 %%
 {ent_1}    {
-                yyval.line = yylineo;
                 yyval.num.tipo = 1;
                 strcpy(yyval.num.sval, yytext);
                 return NUM;
             }
 
 {real_2}    {
-                yyval.line = yylineo;
+               
                 yyval.num.tipo = 2;
                 strcpy(yyval.num.sval, yytext);
                 return NUM;
             }
 
 {dreal_3}   {
-                yyval.line = yylineo;
+               
                 yyval.num.tipo = 3;
                 strcpy(yyval.num.sval, yytext);
                 return NUM;
             }
 
 {caracter}  {
-				yyval.line = yylineo;
-                yyval.car.tipo = 4;
-                sprintf(yylval.sval,"%c",yytext[1]);
-                return CARACTER;	
+                yyval.car = yytext;
+                return CARACTER;
+            }
+
+{cadena}    {
+
+                Strcpy(yyval.sval, yytext);
+                return CADENA;
             }
 
 "ent"       {yyval.line = yylineo; return ENT;}

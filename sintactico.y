@@ -7,29 +7,29 @@ extern FILE *yyin;
 
 %union{
     struct {
-        char *sval
-        int tipo
-    } num
+        char *sval;
+        int tipo;
+    } num;
 
     struct {
         char *sval;
-    }  sval
+    }  sval;
 
     struct {
-        char *sval
-    } car
+        char sval;
+    } car;
 
     struct {
-        char *sval
-    } id
+        char *sval;
+    } id;
 }
 
 %token<num> NUM
 %token<id> ID
 
-%token INT ENT
-%token INT REAL
-%token INT DREAL
+%token ENT
+%token REAL
+%token DREAL
 
 %token CAR
 %token SIN
@@ -42,6 +42,8 @@ extern FILE *yyin;
 %token FIN
 %token ENTONCES
 %token VERDADERO
+%token HACER
+%token TERMINAR
 %token FALSO
 %token MIENTRAS
 %token MIENTRAS_QUE
@@ -51,6 +53,7 @@ extern FILE *yyin;
 %token<car> CARACTER
 
 %token COMA
+%token PUNTO
 %token SL
 
 %left ASIG
@@ -74,7 +77,7 @@ programa: declaraciones funciones
 // 2. declaraciones -> tipo lista_var \n declaraciones
 //                   | tipo_registro lista_var \n declaraciones
 //                   | ε
-delcaraciones: tipo lista_var declaraciones
+declaraciones: tipo lista_var declaraciones
                | tipo_registro lista_var declaraciones
                | {}
                ;
@@ -101,7 +104,7 @@ tipo_arreglo: CORI NUM CORD tipo_arreglo
               ;
 
 // 7. lista_var -> lista_var , id | id
-lista_var: lista_var , ID
+lista_var: lista_var COMA ID
            | ID
            ;
 
@@ -230,7 +233,10 @@ int main(int argc, char **argv){
     FILE *f = fopen(argv[1], "r");
     if(!f) return -1,
     yyin = f;
-    yyparse();
+    int w = yyparse();
+    if(!w){
+      printf("LA CADENA ES LÉXICA Y SINTÁCTICAMENTE CORRECTA.");
+    }
     fclose(f);
     return 0;
 }
