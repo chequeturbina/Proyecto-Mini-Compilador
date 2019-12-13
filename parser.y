@@ -103,6 +103,7 @@ token MIENTRAS_QUE
 %type<cond> expresion_booleana relacional
 %type<sent> sentencias sentencia
 
+/*Con este se inicializa el programa (Gramatica)*/
 %start program
 
 %%
@@ -188,6 +189,7 @@ expresion : expresion MAS expresion{ if($1.tipo == $3.tipo){
                                      }
                                      //printf("E-> E/E\n");
                                     }
+            
         | PARI expresion PARD {
                                 $$ = $2;
                                 //printf("E-> (E)\n");

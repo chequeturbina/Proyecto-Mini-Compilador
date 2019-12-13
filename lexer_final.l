@@ -87,11 +87,15 @@ caracter [a-zA-Z]+
 
 "mientras"  {yyval.line = yylineo; return MIENTRAS;}
 
+"hacer"     {yyval.line = yylineo; return HACER;}
+
 "mientrasq" {yyval.line = yylineo; return MIENTRAS_QUE;}
 
 "leer"      {yyval.line = yylineo; return LEER;}
 
 "escribir"  {yyval.line = yylineo; return ESCRIBIR;}
+
+"terminar"  {yyval.line = yylineo; return TERMINAR;}
 
 {id}        {
                 yyval.line = yylineo;
