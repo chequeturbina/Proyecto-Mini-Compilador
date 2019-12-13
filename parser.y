@@ -53,6 +53,8 @@ void initTabla();
     int tipoAtrib;
 }
 
+/*Tokens de la gramatica*/
+
 %token<num> NUM
 %token<id> ID
 
@@ -93,9 +95,13 @@ token MIENTRAS_QUE
 
 %nonassoc PARI PARD CORI CORD
 
+/*Tipos de la gramatica*/
 
-%type<num> expresion
-%type<tipoAtrib> tipo
+%type<tval> base tipo tipo_arreglo  tipo_registro declaraciones arg tipo_arg param_arr
+%type<args_list> argumentos lista_arg lista_param parametros
+%type<eval> expresion arreglo variable
+%type<cond> expresion_booleana relacional
+%type<sent> sentencias sentencia
 
 %start program
 
