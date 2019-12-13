@@ -1,4 +1,5 @@
-nclude <stdio.h>
+{%
+#include <stdio.h>
 void yyerror(char *msg);
 extern int yylex();
 extern FILE *yyin;

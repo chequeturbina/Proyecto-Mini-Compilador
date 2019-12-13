@@ -526,11 +526,11 @@ char *yytext;
  * kevin Cervantes GOnzalez
  * Fecha: 12/12/19			
 **/
-	#include <stdio.h>
+    #include <stdio.h>
     #include <string.h>
     #include <stdlib.h>
-    //#include "y.tab.h"
     #include "sintactico.tab.h"
+    //#define YY_DECL extern "C" int yylex()
 
 #line 536 "lex.yy.c"
 
@@ -808,8 +808,8 @@ YY_RULE_SETUP
 case 4:
 YY_RULE_SETUP
 #line 50 "lexer_final.l"
-{
-                yylval.car = yytext;
+{                
+                yylval.car.sval = yytext[1];
                 return CARACTER;
             }
 	YY_BREAK
@@ -818,7 +818,7 @@ YY_RULE_SETUP
 #line 55 "lexer_final.l"
 {
 
-                Strcpy(yylval.sval, yytext);
+                strcpy(yylval.string.sval, yytext);
                 return CADENA;
             }
 	YY_BREAK
@@ -1045,23 +1045,22 @@ YY_RULE_SETUP
 case 50:
 YY_RULE_SETUP
 #line 128 "lexer_final.l"
-{
-                yylval.line = yylineo;
-                strcpy(yylval.sval, yytext);
+{                
+                strcpy(yylval.id.sval, yytext);
                 return ID;
             }
 	YY_BREAK
 case 51:
 YY_RULE_SETUP
-#line 134 "lexer_final.l"
+#line 133 "lexer_final.l"
 {printf("No Reconocido");}
 	YY_BREAK
 case 52:
 YY_RULE_SETUP
-#line 136 "lexer_final.l"
+#line 135 "lexer_final.l"
 ECHO;
 	YY_BREAK
-#line 1065 "lex.yy.c"
+#line 1064 "lex.yy.c"
 			case YY_STATE_EOF(INITIAL):
 				yyterminate();
 
@@ -1945,5 +1944,5 @@ int main()
 	return 0;
 	}
 #endif
-#line 136 "lexer_final.l"
+#line 135 "lexer_final.l"
 
