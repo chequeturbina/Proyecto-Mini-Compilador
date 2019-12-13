@@ -55,43 +55,43 @@ caracter [a-zA-Z]+
                 return CARACTER;	
             }
 
-{ent}       {yyval.line = yylineo; return ENT;}
+"ent"       {yyval.line = yylineo; return ENT;}
 
-{dreal}     {yyval.line = yylineo; return DREAL;}
+"dreal"     {yyval.line = yylineo; return DREAL;}
 
-{real}      {yyval.line = yylineo; return REAL;}
+"real"      {yyval.line = yylineo; return REAL;}
 
-{car}       {yyval.line = yylineo; return CAR;}
+"car"       {yyval.line = yylineo; return CAR;}
 
-{sin}       {yyval.line = yylineo; return SIN;}
+"sin"       {yyval.line = yylineo; return SIN;}
 
-{registro}  {yyval.line = yylineno; return REGISTRO;}
+"registro"  {yyval.line = yylineno; return REGISTRO;}
 
-{inicio}    {yyval.line = yylineo; return INCIO;}
+"inicio"    {yyval.line = yylineo; return INCIO;}
 
-{func}      {yyval.line = yylineo; return FUNC;}
+"func"      {yyval.line = yylineo; return FUNC;}
 
-{sino}      {yyval.line = yylineo; return SINO;}
+"sino"      {yyval.line = yylineo; return SINO;}
 
-{si}        {yyval.line = yylineo; return SI;}
+"si"        {yyval.line = yylineo; return SI;}
 
-{devolver}  {yyval.line = yylineo; return DEVOLVER;}
+"devolver"  {yyval.line = yylineo; return DEVOLVER;}
 
-{fin}       {yyval.line = yylineo; return FIN;}
+"fin"       {yyval.line = yylineo; return FIN;}
 
-{entonces}  {yyval.line = yylineo; return ENTONCES;}
+"entonces"  {yyval.line = yylineo; return ENTONCES;}
 
-{verdadero} {yyval.line = yylineo; return VERDADERO;}
+"verdadero" {yyval.line = yylineo; return VERDADERO;}
 
-{falso}     {yyval.line = yylineo; return FALSO;}
+"falso"     {yyval.line = yylineo; return FALSO;}
 
-{mientras}  {yyval.line = yylineo; return MIENTRAS;}
+"mientras"  {yyval.line = yylineo; return MIENTRAS;}
 
-{mientrasq} {yyval.line = yylineo; return MIENTRAS_QUE;}
+"mientrasq" {yyval.line = yylineo; return MIENTRAS_QUE;}
 
-{leer}      {yyval.line = yylineo; return LEER;}
+"leer"      {yyval.line = yylineo; return LEER;}
 
-{escribir}  {yyval.line = yylineo; return ESCRIBIR;}
+"escribir"  {yyval.line = yylineo; return ESCRIBIR;}
 
 {id}        {
                 yyval.line = yylineo;
@@ -123,14 +123,6 @@ caracter [a-zA-Z]+
 "oo"    {yyval.line = yylineo; return DISY;}
 "yy"    {yyval.line = yylineo; return CONJ;}
 "no"	{yyval.line = yylineo; return NOT;}
-
-"--" BEGIN(comentario);
-<comentario>[^\n]* {printf("<Comentario 1 linea,--%s>\n",yytext),return 34;}
-<comentario>\n {BEGIN(INITIAL);}
-
-"<*" BEGIN(multilinea);
-<multilinea>[^"*>"]* {printf("Comentario multilinea,<*%s*>>\n",yytext),return 35;}
-<multilinea>"*"+">" {BEGIN(INITIAL);}
 
 . {printf("No Reconocido");}
 
