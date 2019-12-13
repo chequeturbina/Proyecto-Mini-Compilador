@@ -28,7 +28,6 @@ caracter [a-zA-Z]+
                 yyval.line = yylineo;
                 yyval.num.tipo = 1;
                 strcpy(yyval.num.sval, yytext);
-                yylval.num.ival = atoi(yytext);
                 return NUM;
             }
 
@@ -36,7 +35,6 @@ caracter [a-zA-Z]+
                 yyval.line = yylineo;
                 yyval.num.tipo = 2;
                 strcpy(yyval.num.sval, yytext);
-                yylval.num.ival = atoi(yytext);
                 return NUM;
             }
 
@@ -44,7 +42,6 @@ caracter [a-zA-Z]+
                 yyval.line = yylineo;
                 yyval.num.tipo = 3;
                 strcpy(yyval.num.sval, yytext);
-                yylval.num.ival = atoi(yytext);
                 return NUM;
             }
 
