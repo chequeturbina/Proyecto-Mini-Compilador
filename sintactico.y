@@ -28,7 +28,7 @@ base: ENT
       ;
 
 // 6. tipo_arregloi -> [num] tipo_arreglo | ε
-tipo_arreglo: [NUM] tipo_arreglo
+tipo_arreglo: CORI NUM CORD tipo_arreglo
               | {}
               ;
 
@@ -43,13 +43,13 @@ funciones: FUNC tipo ID PARI argumentos PARD INICIO declaraciones sentencias FIN
            ;
 
 // 9. argumentos -> lista_arg | sin
-argumentos: lista_arg 
+argumentos: lista_arg
             | SIN
             ;
 
 // 10. lista_arg -> lista_arg arg | arg
-lista_arg: lista_arg argumentos
-           | argumentos
+lista_arg: lista_arg arg
+           | arg
            ;
 
 // 11. arg -> tipo_arg id
