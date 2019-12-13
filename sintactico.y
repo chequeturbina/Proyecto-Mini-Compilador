@@ -1,4 +1,4 @@
-{%
+%{
 #include <stdio.h>
 void yyerror(char *msg);
 extern int yylex();

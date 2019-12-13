@@ -98,21 +98,14 @@ typedef union YYSTYPE
 /* Line 1676 of yacc.c  */
 #line 8 "sintactico.y"
 
-
-    ttype tval;
-	expresion eval;
-	args_list args_list;
-	condition cond;
-	sentence sent;
-
     struct {
         char *sval;
         int tipo;
     } num;
 
     struct {
-        char *sval;
-    }  sval;
+      char *sval;
+    }  string;
 
     struct {
         char sval;
@@ -125,7 +118,7 @@ typedef union YYSTYPE
 
 
 /* Line 1676 of yacc.c  */
-#line 129 "sintactico.tab.h"
+#line 122 "sintactico.tab.h"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
