@@ -67,7 +67,7 @@ caracter [a-zA-Z]+
 
 "registro"  {yyval.line = yylineno; return REGISTRO;}
 
-"inicio"    {yyval.line = yylineo; return INCIO;}
+"inicio"    {yyval.line = yylineo; return INICIO;}
 
 "func"      {yyval.line = yylineo; return FUNC;}
 
