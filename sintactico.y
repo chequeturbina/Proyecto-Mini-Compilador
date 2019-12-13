@@ -16,14 +16,31 @@ tipo_registro: REGISTRO INICIO declaraciones FIN
                ;
 
 // 4. tipo -> base tipo_arreglo
+tipo: base tipo_arreglo
+      ;
 
 // 5. base -> ent | real | dreal | car | sin
+base: ENT
+      | REAL
+      | DREAL
+      | CAR
+      | SIN
+      ;
 
 // 6. tipo_arregloi -> [num] tipo_arreglo | ε
+tipo_arreglo: [NUM] tipo_arreglo
+              | {}
+              ;
 
 // 7. lista_var -> lista_var , id | id
+lista_var: lista_var , ID
+           | ID
+           ;
 
 // 8. funciones -> func tipo id( argumentos ) inicio \n delcaraciones sentencias \n fin \n funciones | ε
+funciones: FUNC tipo ID ( argumentos ) INICIO declaraciones sentencias FIN funciones
+           | {}
+           ;
 
 // 9. argumentos -> lista_arg | sin
 
