@@ -10,6 +10,8 @@
 	#include <stdio.h>
     #include <string.h>
     #include <stdlib.h>
+    //#include <sintactico.tab.h>
+
 %}
 
 %option yylineno
@@ -55,47 +57,47 @@ caracter [a-zA-Z]
                 return CADENA;
             }
 
-"ent"       {yyval.line = yylineo; return ENT;}
+"ent"       { return ENT;}
 
-"dreal"     {yyval.line = yylineo; return DREAL;}
+"dreal"     { return DREAL;}
 
-"real"      {yyval.line = yylineo; return REAL;}
+"real"      { return REAL;}
 
-"car"       {yyval.line = yylineo; return CAR;}
+"car"       { return CAR;}
 
-"sin"       {yyval.line = yylineo; return SIN;}
+"sin"       { return SIN;}
 
-"registro"  {yyval.line = yylineno; return REGISTRO;}
+"registro"  {return REGISTRO;}
 
-"inicio"    {yyval.line = yylineo; return INICIO;}
+"inicio"    { return INICIO;}
 
-"func"      {yyval.line = yylineo; return FUNC;}
+"func"      { return FUNC;}
 
-"sino"      {yyval.line = yylineo; return SINO;}
+"sino"      { return SINO;}
 
-"si"        {yyval.line = yylineo; return SI;}
+"si"        { return SI;}
 
-"devolver"  {yyval.line = yylineo; return DEVOLVER;}
+"devolver"  { return DEVOLVER;}
 
-"fin"       {yyval.line = yylineo; return FIN;}
+"fin"       { return FIN;}
 
-"entonces"  {yyval.line = yylineo; return ENTONCES;}
+"entonces"  { return ENTONCES;}
 
-"verdadero" {yyval.line = yylineo; return VERDADERO;}
+"verdadero" { return VERDADERO;}
 
-"falso"     {yyval.line = yylineo; return FALSO;}
+"falso"     { return FALSO;}
 
-"mientras"  {yyval.line = yylineo; return MIENTRAS;}
+"mientras"  { return MIENTRAS;}
 
-"hacer"     {yyval.line = yylineo; return HACER;}
+"hacer"     { return HACER;}
 
-"mientrasq" {yyval.line = yylineo; return MIENTRAS_QUE;}
+"mientrasq" { return MIENTRAS_QUE;}
 
-"leer"      {yyval.line = yylineo; return LEER;}
+"leer"      { return LEER;}
 
-"escribir"  {yyval.line = yylineo; return ESCRIBIR;}
+"escribir"  { return ESCRIBIR;}
 
-"terminar"  {yyval.line = yylineo; return TERMINAR;}
+"terminar"  { return TERMINAR;}
 
 {id}        {
                 yyval.line = yylineo;
@@ -104,29 +106,29 @@ caracter [a-zA-Z]
             }
 
 [ \t\v]+ {}
-"\n"    {yyval.line = yylineo; return SL;}
-","     {yyval.line = yylineo; return COMA;}
-"."     {yyval.line = yylineo; return PUNTO;}
+"\n"    { return SL;}
+","     { return COMA;}
+"."     { return PUNTO;}
 
-"+"     {yyval.line = yylineo; return MAS;}
-"-"     {yyval.line = yylineo; return MENOS;}
-"*"     {yyval.line = yylineo; return MUL;}
-"/"     {yyval.line = yylineo; return DIV;}
-"%"     {yyval.line = yylineo; return MOD;}
-"("     {yyval.line = yylineo; return PARI;}
-")"     {yyval.line = yylineo; return PARD;}
-"["     {yyval.line = yylineo; return CORI;}
-"]"     {yyval.line = yylineo; return CORD;}
-":="    {yyval.line = yylineo; return ASIG;}
-"<"     {yyval.line = yylineo; return MENOR;}
-">"     {yyval.line = yylineo; return MAYOR;}
-"<="    {yyval.line = yylineo; return MENIGU;}
-">="    {yyval.line = yylineo; return MAYIGU;}
-"<>"    {yyval.line = yylineo; return DIF;}
-"=="    {yyval.line = yylineo; return IGUAL;}
-"oo"    {yyval.line = yylineo; return DISY;}
-"yy"    {yyval.line = yylineo; return CONJ;}
-"no"	{yyval.line = yylineo; return NOT;}
+"+"     { return MAS;}
+"-"     { return MENOS;}
+"*"     { return MUL;}
+"/"     { return DIV;}
+"%"     { return MOD;}
+"("     { return PARI;}
+")"     { return PARD;}
+"["     { return CORI;}
+"]"     { return CORD;}
+":="    { return ASIG;}
+"<"     { return MENOR;}
+">"     { return MAYOR;}
+"<="    { return MENIGU;}
+">="    { return MAYIGU;}
+"<>"    { return DIF;}
+"=="    { return IGUAL;}
+"oo"    { return DISY;}
+"yy"    { return CONJ;}
+"no"	{ return NOT;}
 
 . {printf("No Reconocido");}
 
