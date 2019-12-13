@@ -7,9 +7,21 @@ extern FILE *yyin;
 
 %union{
     struct {
-        int ival;
-        int tipo;
-    } numero
+        char *sval
+        int tipo
+    } num
+
+    struct {
+        char *sval;
+    }  sval
+
+    struct {
+        char *sval
+    } car
+
+    struct {
+        char *sval
+    } id
 }
 
 %token<num> NUM
