@@ -46,10 +46,14 @@ caracter [a-zA-Z]+
             }
 
 {caracter}  {
-				yyval.line = yylineo;
-                yyval.car.tipo = 4;
-                sprintf(yylval.sval,"%c",yytext[1]);
-                return CARACTER;	
+				yyval.car = yytext;
+                sprintf(yylval.car.sval,"%c",yytext[1]);
+                return CARACTER;
+            }
+
+{cadena}    {
+                strcpy(yyval.sval, yytext);
+                return CADENA;
             }
 
 "ent"       {yyval.line = yylineo; return ENT;}
