@@ -163,6 +163,13 @@ typedef union YYSTYPE
 /* Line 214 of yacc.c  */
 #line 8 "sintactico.y"
 
+
+    ttype tval;
+	expresion eval;
+	args_list args_list;
+	condition cond;
+	sentence sent;
+
     struct {
         char *sval;
         int tipo;
@@ -183,7 +190,7 @@ typedef union YYSTYPE
 
 
 /* Line 214 of yacc.c  */
-#line 187 "sintactico.tab.c"
+#line 194 "sintactico.tab.c"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
@@ -195,7 +202,7 @@ typedef union YYSTYPE
 
 
 /* Line 264 of yacc.c  */
-#line 199 "sintactico.tab.c"
+#line 206 "sintactico.tab.c"
 
 #ifdef short
 # undef short
@@ -510,14 +517,14 @@ static const yytype_int8 yyrhs[] =
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,    74,    74,    80,    81,    82,    86,    90,    94,    95,
-      96,    97,    98,   102,   103,   107,   108,   112,   113,   117,
-     118,   122,   123,   127,   131,   135,   136,   140,   141,   150,
-     151,   152,   153,   154,   155,   156,   157,   158,   159,   166,
-     167,   168,   169,   170,   171,   176,   177,   178,   179,   180,
-     181,   182,   189,   190,   191,   192,   193,   194,   195,   196,
-     197,   198,   199,   203,   204,   208,   209,   213,   214,   218,
-     219
+       0,    86,    86,    92,    93,    94,    98,   102,   106,   107,
+     108,   109,   110,   114,   115,   119,   120,   124,   125,   129,
+     130,   134,   135,   139,   143,   147,   148,   152,   153,   162,
+     163,   164,   165,   166,   167,   168,   169,   170,   171,   178,
+     179,   180,   181,   182,   183,   188,   189,   190,   191,   192,
+     193,   194,   201,   202,   203,   204,   205,   206,   207,   208,
+     209,   210,   211,   215,   216,   220,   221,   225,   226,   230,
+     231
 };
 #endif
 
@@ -1527,49 +1534,49 @@ yyreduce:
         case 5:
 
 /* Line 1455 of yacc.c  */
-#line 82 "sintactico.y"
+#line 94 "sintactico.y"
     {;}
     break;
 
   case 14:
 
 /* Line 1455 of yacc.c  */
-#line 103 "sintactico.y"
+#line 115 "sintactico.y"
     {;}
     break;
 
   case 18:
 
 /* Line 1455 of yacc.c  */
-#line 113 "sintactico.y"
+#line 125 "sintactico.y"
     {;}
     break;
 
   case 26:
 
 /* Line 1455 of yacc.c  */
-#line 136 "sintactico.y"
+#line 148 "sintactico.y"
     {;}
     break;
 
   case 66:
 
 /* Line 1455 of yacc.c  */
-#line 209 "sintactico.y"
+#line 221 "sintactico.y"
     {;}
     break;
 
   case 68:
 
 /* Line 1455 of yacc.c  */
-#line 214 "sintactico.y"
+#line 226 "sintactico.y"
     {;}
     break;
 
 
 
 /* Line 1455 of yacc.c  */
-#line 1573 "sintactico.tab.c"
+#line 1580 "sintactico.tab.c"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);
@@ -1781,7 +1788,7 @@ yyreturn:
 
 
 /* Line 1675 of yacc.c  */
-#line 222 "sintactico.y"
+#line 234 "sintactico.y"
 
 
 //extern int yylex();

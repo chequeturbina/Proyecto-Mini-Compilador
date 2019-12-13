@@ -1,5 +1,4 @@
-%{
-#include <stdio.h>
+nclude <stdio.h>
 void yyerror(char *msg);
 extern int yylex();
 extern FILE *yyin;
@@ -12,8 +11,8 @@ extern FILE *yyin;
     } num;
 
     struct {
-        char *sval;
-    }  sval;
+      char *sval;
+    }  string;
 
     struct {
         char sval;
@@ -49,7 +48,7 @@ extern FILE *yyin;
 %token MIENTRAS_QUE
 %token LEER
 %token ESCRIBIR
-%token<sval> CADENA
+%token<string> CADENA
 %token<car> CARACTER
 
 %token COMA
@@ -231,7 +230,7 @@ void yyerror(char *msg){
 int main(int argc, char **argv){
     if(argc < 2) return -1;
     FILE *f = fopen(argv[1], "r");
-    if(!f) return -1,
+    if(!f) return -1;
     yyin = f;
     int w = yyparse();
     if(!w){
