@@ -49,6 +49,13 @@ caracter [a-zA-Z]+
                 return NUM;
             }
 
+{caracter}  {
+				yyval.line = yylineo;
+                yyval.car.tipo = 4;
+                sprintf(yylval.sval,"%c",yytext[1]);
+                return CARACTER;	
+            }
+
 {ent}       {yyval.line = yylineo; return ENT;}
 
 {dreal}     {yyval.line = yylineo; return DREAL;}
@@ -95,6 +102,9 @@ caracter [a-zA-Z]+
 
 [ \t\v]+ {}
 "\n"    {yyval.line = yylineo; return SL;}
+","     {yyval.line = yylineo; return COMA;}
+"."     {yyval.line = yylineo; return PUNTO;}
+
 "+"     {yyval.line = yylineo; return MAS;}
 "-"     {yyval.line = yylineo; eturn MENOS;}
 "*"     {yyval.line = yylineo; return MUL;}
@@ -105,8 +115,6 @@ caracter [a-zA-Z]+
 "["     {yyval.line = yylineo; return CORI;}
 "]"     {yyval.line = yylineo; return CORD;}
 ":="    {yyval.line = yylineo; return ASIG;}
-","     {yyval.line = yylineo; return COMA;}
-"."     {yyval.line = yylineo; return PUNTO;}
 "<"     {yyval.line = yylineo; return MENOR;}
 ">"     {yyval.line = yylineo; return MAYOR;}
 "<="    {yyval.line = yylineo; return MENIGU;}
@@ -115,6 +123,7 @@ caracter [a-zA-Z]+
 "=="    {yyval.line = yylineo; return IGUAL;}
 "oo"    {yyval.line = yylineo; return DISY;}
 "yy"    {yyval.line = yylineo; return CONJ;}
+"no"	{yyval.line = yylineo; return NOT;}
 
 "--" BEGIN(comentario);
 <comentario>[^\n]* {printf("<Comentario 1 linea,--%s>\n",yytext),return 34;}

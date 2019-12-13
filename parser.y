@@ -1,12 +1,36 @@
-/*
-   S-> E \n S | E
-   E -> E + E | E - E | E * E | E / E | (E) | num
-*/
-
 %{ 
 #include <stdio.h>
+#include <string.h>
+#include "symbols.h"
+#include "types.h"
+
+int contadorEtiquetas= 0;
+extern int yylineno;
+char *newLabel();
+code *codeGBL;
+
 void yyerror(char *s);
 extern int yylex();
+int tipoGbl;
+int dirGBL = 0;
+int tamGBL;
+
+typedef struct sym{
+    char id[32];
+    int tipo;    
+    int dir;
+} symbol;
+
+typedef struct symtab{
+    symbol syms[32];
+    int num;
+} SymTab;
+
+SymTab tabla;
+
+int insertar(char *id, int dir, int tipo);
+void imprimirTabla();
+void initTabla();
 %}
 
 %union{
@@ -18,21 +42,83 @@ extern int yylex();
             float fval;
         }valor;
     }num;
+    struct{
+        listIndices listaVerdadera;
+        listIndices listaFalse;
+    } exp_bool;
+    struct {
+        listIndices listaSiguientes;
+    } sigs;
+    char id[32];
+    int tipoAtrib;
 }
 
 %token<num> NUM
+%token<id> ID
+
+%token INT ENT
+%token INT REAL
+%token INT DREAL
+
+%token CAR
+%token SIN
+%token REGISTRO
+%token INICIO
+%token FUNC
+%token SINO
+%token SI
+%token DEVOLVER
+%token FIN
+%token ENTONCES
+%token VERDADERO
+%token FALSO
+%token MIENTRAS
+token MIENTRAS_QUE
+%token LEER
+%token ESCRIBIR
+%token<sval> CADENA
+%token<car> CARACTER
+
+%token COMA
 %token SL
 
-%left MAS MENOS
-%left MUL DIV
-%nonassoc PARI PARD
+%left ASIG
+%left DISY
+%left CONJ
+%left<sval> IGUAL DIF
+%left<sval> MAYOR MENOR MAYIGU MENIGU 
+%left<sval> MAS MENOS
+%left<sval> MUL DIV MOD
+%left NOT
+
+%nonassoc PARI PARD CORI CORD
+
 
 %type<num> expresion
+%type<tipoAtrib> tipo
 
-%start inicial
+%start program
 
 %%
-inicial : inicial 
+program: {initTabla();} declaracion {imprimirTabla();}sentencia;
+
+declaracion: declaracion tipo {tipoGbl = $2;} lista SL {printf("D->D T L ;\n");}
+            | tipo {tipoGbl = $1;} lista SL {printf("D-> T L ;\n");};
+
+tipo: INT {$$ = 0; tamGBL = 4; printf("T->int\n");}  
+    | FLOAT{$$= 1; tamGBL = 4;printf("T->float\n");};
+
+lista: lista COMA ID {
+    insertar($3,dirGBL, tipoGbl);
+    dirGBL += tamGBL;
+    printf("L->L, id\n");
+} | ID{
+    insertar($1,dirGBL, tipoGbl);
+    dirGBL += tamGBL;
+    printf("L-> id\n");
+};
+
+sentencia : sentencia
            SL expresion {if ($3.tipo == 0)
                         printf("El resultado es %d\n", $3.valor.ival);
                      else
@@ -43,6 +129,9 @@ inicial : inicial
                      else
                         printf("El resultado es %f\n", $1.valor.fval);
                     }
+
+           /* | IF PARI expresion_booleana PARD sentencias %prec THEN
+            | IF PARI expresion_booleana PARD sentencias ELSE sentencias */
     ;
 
 expresion : expresion MAS expresion{ if($1.tipo == $3.tipo){
@@ -108,4 +197,35 @@ expresion : expresion MAS expresion{ if($1.tipo == $3.tipo){
 void yyerror(char *s)
 {
     printf("%s\n", s);
+}
+
+int insertar(char *id, int dir, int tipo)
+{    
+    strcpy(tabla.syms[tabla.num].id , id);
+    printf("%s\n", tabla.syms[tabla.num].id);
+    tabla.syms[tabla.num].dir = dirGBL;
+    tabla.syms[tabla.num].tipo = tipoGbl;
+    tabla.num++;
+}
+
+void initTabla(){
+    tabla.num = 0;
+}
+
+void imprimirTabla(){
+    int i;
+    printf("ID\tDIR\tTIPO\n");
+    for(i= 0; i < tabla.num; i++){
+        printf("%s\t%d\t%d\n", tabla.syms[tabla.num].id, tabla.syms[tabla.num].dir, tabla.syms[tabla.num].tipo);
+    }
+    printf("Dirección %d\n", dirGBL);
+}
+
+char res[45];
+
+char *newLabel(){
+    char etiqueta[45];    
+    contadorEtiquetas++;    
+    sprintf(etiqueta, "L%d", contadorEtiquetas);
+    return etiqueta;
 }
