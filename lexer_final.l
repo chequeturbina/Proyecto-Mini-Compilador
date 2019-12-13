@@ -2,6 +2,9 @@
 /**
  * Archivo del analizador lexico de nuestro compilador.
  * Autores: Jesus Fernando Moreno Ruiz
+ * Juan Adolfo Alfaro Jimenez
+ * Emmanuel Meza Martinez
+ * kevin Cervantes GOnzalez
  * Fecha: 12/12/19			
 **/
 	#include <stdio.h>
@@ -19,10 +22,6 @@ dreal_3 [+-]?[0-9]*"."[0-9]+
 id [a-zA-Z_][a-zA-Z0-9_]{0,31}
 cadena [.^\t ]+
 caracter [a-zA-Z]+
-
-
-%x comentario
-%x multilinea
 
 %%
 {ent_1}    {
@@ -106,7 +105,7 @@ caracter [a-zA-Z]+
 "."     {yyval.line = yylineo; return PUNTO;}
 
 "+"     {yyval.line = yylineo; return MAS;}
-"-"     {yyval.line = yylineo; eturn MENOS;}
+"-"     {yyval.line = yylineo; return MENOS;}
 "*"     {yyval.line = yylineo; return MUL;}
 "/"     {yyval.line = yylineo; return DIV;}
 "%"     {yyval.line = yylineo; return MOD;}
