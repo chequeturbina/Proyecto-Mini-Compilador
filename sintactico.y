@@ -1,3 +1,59 @@
+%{
+#include <stdio.h>
+void yyerror(char *msg);
+extern int yylex();
+extern FILE *yyin;
+%}
+
+%union{
+    struct {
+        int ival;
+        int tipo;
+    } numero
+}
+
+%token<num> NUM
+%token<id> ID
+
+%token INT ENT
+%token INT REAL
+%token INT DREAL
+
+%token CAR
+%token SIN
+%token REGISTRO
+%token INICIO
+%token FUNC
+%token SINO
+%token SI
+%token DEVOLVER
+%token FIN
+%token ENTONCES
+%token VERDADERO
+%token FALSO
+%token MIENTRAS
+%token MIENTRAS_QUE
+%token LEER
+%token ESCRIBIR
+%token<sval> CADENA
+%token<car> CARACTER
+
+%token COMA
+%token SL
+
+%left ASIG
+%left DISY
+%left CONJ
+%left<sval> IGUAL DIF
+%left<sval> MAYOR MENOR MAYIGU MENIGU 
+%left<sval> MAS MENOS
+%left<sval> MUL DIV MOD
+%left NOT
+
+%nonassoc PARI PARD CORI CORD
+
+
+%%
 
 // 1. programa -> declaraciones \n funciones
 programa: declaraciones funciones
@@ -147,3 +203,22 @@ parametros: lista_param
 lista_param: lista_param COMA expresion
              | expresion
              ;
+
+%%
+
+//extern int yylex();
+//extern FILE *yyin;
+
+void yyerror(char *msg){
+    printf("%s\n", msg);
+}
+
+int main(int argc, char **argv){
+    if(argc < 2) return -1;
+    FILE *f = fopen(argv[1], "r");
+    if(!f) return -1,
+    yyin = f;
+    yyparse();
+    fclose(f);
+    return 0;
+}
