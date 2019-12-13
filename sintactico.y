@@ -42,6 +42,8 @@ extern FILE *yyin;
 %token FIN
 %token ENTONCES
 %token VERDADERO
+%token HACER
+%token TERMINAR
 %token FALSO
 %token MIENTRAS
 %token MIENTRAS_QUE
@@ -51,6 +53,7 @@ extern FILE *yyin;
 %token<car> CARACTER
 
 %token COMA
+%token PUNTO
 %token SL
 
 %left ASIG
@@ -74,7 +77,7 @@ programa: declaraciones funciones
 // 2. declaraciones -> tipo lista_var \n declaraciones
 //                   | tipo_registro lista_var \n declaraciones
 //                   | ε
-delcaraciones: tipo lista_var declaraciones
+declaraciones: tipo lista_var declaraciones
                | tipo_registro lista_var declaraciones
                | {}
                ;
