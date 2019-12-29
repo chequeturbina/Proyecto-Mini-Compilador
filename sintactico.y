@@ -1,8 +1,10 @@
 %{
-#include <stdio.h>
+#include<stdio.h>
+#include<stdlib.h>
 void yyerror(char *msg);
 extern int yylex();
 extern FILE *yyin;
+extern int yylineno;
 %}
 
 %union{
@@ -30,13 +32,13 @@ extern FILE *yyin;
 %token ENT
 %token REAL
 %token DREAL
+%token PC
 
 %token CAR
 %token SIN
 %token REGISTRO
 %token INICIO
 %token FUNC
-%token SINO
 %token SI
 %token DEVOLVER
 %token FIN
@@ -54,7 +56,7 @@ extern FILE *yyin;
 
 %token COMA
 %token PUNTO
-%token SL
+
 
 %left ASIG
 %left DISY
@@ -64,33 +66,27 @@ extern FILE *yyin;
 %left<sval> MAS MENOS
 %left<sval> MUL DIV MOD
 %left NOT
-
 %nonassoc PARI PARD CORI CORD
+%nonassoc SIX
+%nonassoc SINO
 
 
 %%
 
-// 1. programa -> declaraciones \n funciones
 programa: declaraciones funciones
           ;
 
-// 2. declaraciones -> tipo lista_var \n declaraciones
-//                   | tipo_registro lista_var \n declaraciones
-//                   | ε
 declaraciones: tipo lista_var declaraciones
                | tipo_registro lista_var declaraciones
-               | {}
+               | %empty
                ;
 
-// 3. tipo_registro -> registro \n inicio declaraciones \n fin
 tipo_registro: REGISTRO INICIO declaraciones FIN
                ;
 
-// 4. tipo -> base tipo_arreglo
 tipo: base tipo_arreglo
       ;
 
-// 5. base -> ent | real | dreal | car | sin
 base: ENT
       | REAL
       | DREAL
@@ -98,71 +94,53 @@ base: ENT
       | SIN
       ;
 
-// 6. tipo_arregloi -> [num] tipo_arreglo | ε
 tipo_arreglo: CORI NUM CORD tipo_arreglo
-              | {}
+              | %empty
               ;
 
-// 7. lista_var -> lista_var , id | id
 lista_var: lista_var COMA ID
            | ID
            ;
 
-// 8. funciones -> func tipo id( argumentos ) inicio \n delcaraciones sentencias \n fin \n funciones | ε
 funciones: FUNC tipo ID PARI argumentos PARD INICIO declaraciones sentencias FIN funciones
-           | {}
+           | %empty
            ;
 
-// 9. argumentos -> lista_arg | sin
 argumentos: lista_arg
             | SIN
             ;
 
-// 10. lista_arg -> lista_arg arg | arg
 lista_arg: lista_arg arg
            | arg
            ;
 
-// 11. arg -> tipo_arg id
 arg: tipo_arg ID
     ;
 
-// 12. tipo_arg -> base param_arr
 tipo_arg: base param_arr
         ;
 
-// 13. param_arr -> [] param_arr | ε
-param_arr: CORI param_arr CORD
-           | {}
+param_arr: CORI CORD param_arr
+           | %empty
            ;
 
-// 14. sentencias -> sentencias \n sentencia | sentencia
 sentencias: sentencias sentencia
             | sentencia
             ;
 
-// 15. sentencia -> si expresion_booleana entonces \n sentencias \n fin
-//                | si expresion_booleana \n sentencias \n sino \n sentencias \n fin
-//                | mientras \n expresion_booleana hacer \n sentencias \n fin
-//                | hacer \n sentencia \n mientras que expresion_booleana
-//                | id := expresion | escribir expresion | leer variable | devolver
-//                | devolver expresion | terminar
-sentencia: SI expresion_booleana ENTONCES sentencias FIN
+sentencia: SI expresion_booleana ENTONCES sentencias FIN %prec SIX
            | SI expresion_booleana sentencias SINO sentencias FIN
            | MIENTRAS expresion_booleana HACER sentencias FIN
            | HACER sentencia MIENTRAS_QUE expresion_booleana
            | ID ASIG expresion
+           | variable ASIG expresion
            | ESCRIBIR expresion
            | LEER variable
-           | DEVOLVER
-           | DEVOLVER expresion
+           | DEVOLVER PC
+           | DEVOLVER expresion PC
            | TERMINAR
            ;
 
-// 16. expresion_booleana -> expresion_booleana oo expresion_booleana
-//                         | expresion_booleana yy expresion_booleana
-//                         | no expresion_booleana
-//                         | relacional | verdadero | falso
 expresion_booleana: expresion_booleana DISY expresion_booleana
                     | expresion_booleana CONJ expresion_booleana
                     | NOT expresion_booleana
@@ -171,8 +149,6 @@ expresion_booleana: expresion_booleana DISY expresion_booleana
                     | FALSO
                     ;
 
-// 17. relacional -> relacional < relacional | relacional > relacional | relacional <= relacional
-//                 | relacional >= relacional | relacional == relacional | relacional <> relacional | expresion
 relacional: relacional MENOR relacional
             | relacional MAYOR relacional
             | relacional MENIGU relacional
@@ -182,10 +158,6 @@ relacional: relacional MENOR relacional
             | expresion
             ;
 
-// 18. expresion -> expresion + expresion | expresion - expresion         FALTA CADENA
-//                | expresion * expresion | expresion / expresion
-//                | expresion % expresion | (expresion)
-//                | variable | num | cadena | caracter | id( parametros )
 expresion: expresion MAS expresion
            | expresion MENOS expresion
            | expresion MUL expresion
@@ -193,28 +165,24 @@ expresion: expresion MAS expresion
            | expresion MOD expresion
            | PARI expresion PARD
            | variable
+           | NUM 
            | CADENA
-           | NUM
            | CARACTER
            | ID PARI parametros PARD
            ;
 
-// 19. variable -> id arreglo | id.id
-variable: ID arreglo
+variable: arreglo
           | ID PUNTO ID
           ;
 
-// 20. arreglo -> id [ expresion ] arreglo | ε
-arreglo: ID CORI expresion CORD arreglo
-         | {}
+arreglo: ID CORI expresion CORD 
+         | arreglo CORI expresion CORD
          ;
 
-// 21. parametros -> lista_param | ε
 parametros: lista_param
-            | {}
+            | %empty
             ;
 
-// 22. lista_param -> lista_param , expresion | expresion
 lista_param: lista_param COMA expresion
              | expresion
              ;
@@ -225,17 +193,23 @@ lista_param: lista_param COMA expresion
 //extern FILE *yyin;
 
 void yyerror(char *msg){
-    printf("%s\n", msg);
+    printf("%s: En la linea %i\n", msg, yylineno);
 }
 
 int main(int argc, char **argv){
+    //printf("antes de la violación de seg");
     if(argc < 2) return -1;
+    //printf("antes de la violación de seg");
     FILE *f = fopen(argv[1], "r");
     if(!f) return -1;
     yyin = f;
+    //printf("antes de la violación de seg");
     int w = yyparse();
+    //printf("despues de la violación de seg");
     if(!w){
       printf("LA CADENA ES LÉXICA Y SINTÁCTICAMENTE CORRECTA.");
+    } else {
+        printf("Error sintactico\n");
     }
     fclose(f);
     return 0;
