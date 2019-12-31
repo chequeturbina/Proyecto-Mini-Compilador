@@ -112,12 +112,13 @@ caracter '[a-zA-Z]'
 
 "terminar"  {printf("<TERMINAR>, "); return TERMINAR;}
 
-[ \t\v]+ {}
+[ \n\t\v]+ {}
 
 
-";"     {printf("<PC>, "); return PC;}
+
 ","     {printf("<COMA>, "); return COMA;}
 "."     {printf("<PUNTO>, "); return PUNTO;}
+";"     {printf("<PC>, "); return PC;}
 
 "+"     {printf("<MAS>, "); return MAS;}
 "-"     {printf("<MENOR>, "); return MENOS;}

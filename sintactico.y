@@ -70,7 +70,6 @@ extern int yylineno;
 %nonassoc SIX
 %nonassoc SINO
 
-
 %%
 
 programa: declaraciones funciones
@@ -78,7 +77,7 @@ programa: declaraciones funciones
 
 declaraciones: tipo lista_var declaraciones
                | tipo_registro lista_var declaraciones
-               | %empty
+               | /*empty*/
                ;
 
 tipo_registro: REGISTRO INICIO declaraciones FIN
@@ -95,7 +94,7 @@ base: ENT
       ;
 
 tipo_arreglo: CORI NUM CORD tipo_arreglo
-              | %empty
+              | /*empty*/
               ;
 
 lista_var: lista_var COMA ID
@@ -103,7 +102,7 @@ lista_var: lista_var COMA ID
            ;
 
 funciones: FUNC tipo ID PARI argumentos PARD INICIO declaraciones sentencias FIN funciones
-           | %empty
+           | /*empty*/
            ;
 
 argumentos: lista_arg
@@ -121,7 +120,7 @@ tipo_arg: base param_arr
         ;
 
 param_arr: CORI CORD param_arr
-           | %empty
+           | /*empty*/
            ;
 
 sentencias: sentencias sentencia
@@ -131,7 +130,7 @@ sentencias: sentencias sentencia
 sentencia: SI expresion_booleana ENTONCES sentencias FIN %prec SIX
            | SI expresion_booleana sentencias SINO sentencias FIN
            | MIENTRAS expresion_booleana HACER sentencias FIN
-           | HACER sentencia MIENTRAS_QUE expresion_booleana
+           | HACER sentencias MIENTRAS_QUE expresion_booleana
            | ID ASIG expresion
            | variable ASIG expresion
            | ESCRIBIR expresion
@@ -171,7 +170,8 @@ expresion: expresion MAS expresion
            | ID PARI parametros PARD
            ;
 
-variable: arreglo
+variable: ID
+          | arreglo
           | ID PUNTO ID
           ;
 
@@ -180,7 +180,7 @@ arreglo: ID CORI expresion CORD
          ;
 
 parametros: lista_param
-            | %empty
+            | /*empty*/
             ;
 
 lista_param: lista_param COMA expresion

@@ -1,16 +1,21 @@
-func ent suma ( ent x ent y ) 
+func ent main(sin) 
 inicio
-   ent[10] t
-    ent z
-    leer z
-    z := x + y
-    escribir z
-    devolver x + y
+	devolver 1;
 fin
 
-func ent main (sin)
-inicio 
-    ent q
-    q := 1
-    devolver q
+func ent sum(ent x ent y)
+inicio
+	registro
+	inicio
+		ent r1
+		ent r2
+	fin reg
+	ent z
+	z := x + y
+	devolver z;
+fin
+
+func sin main2(sin)
+inicio
+	devolver;
 fin
