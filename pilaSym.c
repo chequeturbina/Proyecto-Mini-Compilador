@@ -1,17 +1,5 @@
-typedef struct _symtab symtab;
+#include "pilaSym.h"
 
-struct _symtab{
-	symbol *root;
-	int num;
-	symtab *next;
-};
-
-typedef struct _symstack symstack;
-
-struct _symstack{
-	symtab *root;
-	int num;
-};
 
 symstack *crearSymStack(){
 	symstack *new = malloc(sizeof(symstack));
@@ -22,7 +10,7 @@ symstack *crearSymStack(){
 
 void borrarSymStack(symstack *ss){
 	symtab *iter = ss->root;
-	for (int i = 0; i < num; ++i)
+	for (int i = 0; i < ss->num; ++i)
 	{
 		symtab *ant= iter;
 		iter = ant->next;
@@ -31,18 +19,22 @@ void borrarSymStack(symstack *ss){
 	free(ss);
 }
 
-void insertarSymTab(symtab *sym){
-	symtab *iter = root;
-	if(num==0){
-		root = sym;
-		num=num+1;
-	}else{
-		for(int i=0; i<num; i++){	
-			if(iter->next==NULL){
-				iter->next=sym;
-				num= num+1;
-			}
-			iter = iter->next;
+int insertarSymTab(symtab *st, symbol *sym){
+	symbol *iter = st->root;
+	for (int i = 0; i < st->num; ++i)
+	{	
+		if(st->num==0){
+			st->root=sym;
+			st->num=st->num+1;
+			return 0;
+		}
+		if(sym->id==iter->id){
+			return -1;
+		}
+		if(iter->next==NULL){
+			iter->next=sym;
+				st->num= st->num+1;
+				return st->num;
 		}
 	}
 }
@@ -61,16 +53,21 @@ symtab* getCima(symstack *ss){
 symtab* sacarSymTab(symstack *ss){
 	symtab *iter = ss->root;
 	if(ss->num<=1){
-		ss.borrar();
+		borrarSymStack(ss);
 	}else{
 		for(int i=0; i<ss->num-1; i++){	
 			if(iter->next->next==NULL){
-				symtab *aux= iter->next
-				free(iter->next)
+				symtab *aux= iter->next;
+				free(iter->next);
 				return aux;
 			}
 			iter = iter->next;
 		}
 	}
-	return NULL;	
+	return NULL;
+
+int main(int argc, char const *argv[]) {
+		/* code */
+		return 0;
+	}	
 }
