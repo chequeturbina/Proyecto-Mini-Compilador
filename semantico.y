@@ -153,7 +153,7 @@ arg: tipo_arg ID {
             StackTS.getCima().addSym(id.lexval,tipo,dir,"var");
             dir = dir + StackTT.getCima().getTam(tipo);
         }else{
-            Error("El identificador ya fue declarado"):
+            yyerror("El identificador ya fue declarado"):
         }
         arg.tipo = tipo_arg.tipo;
             };
@@ -214,7 +214,7 @@ sentencia: SI expresion_booleana ENTONCES sentencias FIN %prec SIX{
                    alfa = reducir(expresion.dir,expresion.tipo,t);
                    add_quad(code,"=",alfa,-,"Id"+d);
                }else{
-                   Error("El identificador no ha sido declarado");
+                   yyerror("El identificador no ha sido declarado");
                }
                sentencia.listnext = null;
            }
@@ -235,7 +235,7 @@ sentencia: SI expresion_booleana ENTONCES sentencias FIN %prec SIX{
                if(FuncType = sin){
                    add_quad(code,"return",-,-,-);
                }else{
-                   Error("La funcion debe retornar algun valor de tipo" + FuncType);
+                   yyerror("La funcion debe retornar algun valor de tipo" + FuncType);
                }
                sentencia.listnext = null;
            }
@@ -245,7 +245,7 @@ sentencia: SI expresion_booleana ENTONCES sentencias FIN %prec SIX{
                    add_quad(code,"return",expresion.dir,-,-);
                    FuncReturn = true;
                }else{
-                   Error("La funcion no puede retornar algun valor de tipo");
+                   yyerror("La funcion no puede retornar algun valor de tipo");
                }
                sentencia.listnext = null;
            }
@@ -439,11 +439,11 @@ expresion: expresion1 MAS expresion2{
                if(StackTS.getFondo().getVar(id.lexval) == "func"){
                  lista = StackTS.getFondo().getArgs(id.lexval);
                  if(lista.getTam() != parametros.getTam()){
-                   Error("El numero de argumentos no coincide");
+                   yyerror("El numero de argumentos no coincide");
                  }
                  for(i=0,i<parametros.lista.getTam(),1){
                    if(parametros[i] != lista[i]){
-                     Error("El tipo de parametros no coincide");
+                     yyerror("El tipo de parametros no coincide");
                    }
                  }
                  expresion.dir = newTemp();
@@ -451,12 +451,20 @@ expresion: expresion1 MAS expresion2{
                  add_quad(code,"=","call",id.lexval,expresion.dir);
                }
              }else{
-               Error("El identificador no ha sido declarado");
+               yyerror("El identificador no ha sido declarado");
              }
            }
            ;
 
-variable: ID
+variable: ID{
+            if(buscar(getCima(StackTS),$1)!=-1){
+              $$.dir = getDir(getCima(StackTS),$1);
+              $$.tipo = getTipo(getCima(StackTS),$1);
+              strcpy($$.base,"");
+              }else{
+                yyerror("variable ya definida");
+                }
+          }
           | arreglo{
             variable.dir = arreglo.dir;
             variable.base = arreglo.base;
@@ -473,13 +481,13 @@ variable: ID
                   variable.dir = id2;
                   variable.base = id1;
                 }else{
-                  Error("El id no existe en la estructura");
+                  yyerror("El id no existe en la estructura");
                 }
               }else{
-                Error("el id noes una estructura");
+                yyerror("el id noes una estructura");
               }
             }else{
-              Error("El identificador no ha sido declarado");
+              yyerror("El identificador no ha sido declarado");
             }
           }
           ;
@@ -496,10 +504,10 @@ arreglo: ID CORI expresion CORD{
                   add_quad(code,"*",expresion.dir,arreglo.tam,arreglo.dir);
                 }
               }else{
-                Error("La expresion para un indice debe ser de tipo entero");
+                yyerror("La expresion para un indice debe ser de tipo entero");
               }
             }else{
-              Error("El identificador no ha sido declarado");
+              yyerror("El identificador no ha sido declarado");
             }
           }
          | arreglo1 CORI expresion CORD{
@@ -513,10 +521,10 @@ arreglo: ID CORI expresion CORD{
                add_quad(code,"*",expresion.dir,arreglo.tam,temp);
                add_quad(code,"+",arreglo1.dir,temp,arreglo.dir);
              }else{
-               Error("La expresion par aun indice debe ser de tipo entero");
+               yyerror("La expresion par aun indice debe ser de tipo entero");
              }
            }else{
-             Error("El arreglo no tiene tantas dimensiones");
+             yyerror("El arreglo no tiene tantas dimensiones");
            }
          }
          ;
