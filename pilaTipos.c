@@ -1,19 +1,6 @@
-typedef struct _typetab typetab;
+#include "pilaTipos.h"
 
-struct _typetab{
-	type *root;
-	int num;
-	type *next;
-};
-
-typedef struct _typestack typestack;
-
-struct _typestack{
-	typetab *root;
-	int num;
-};
-
-typestack *crearTypeStack(){
+typestack *crearTypeStack() {
 	typestack *new = malloc(sizeof(symstack));
 	new->root = NULL;
 	new->num = 0;
@@ -22,27 +9,29 @@ typestack *crearTypeStack(){
 
 void borrarTypeStack(typestack *ts){
 	typetab *iter = ts->root;
-	for (int i = 0; i < ts->num; ++i)
-	{
+	for (int i = 0; i < ts->num; ++i) {
 		typetab *ant= iter;
-		iter = ant->next;
+		iter = ant->next; // ant->next es de tipo type pero iter es de tipo typetab
 		free(ant);
 	}
 	free(ts);
 }
 
-void insertarTypeTab(typetab *sym){
-	typetab *iter = root;
-	if(num==0){
-		root = sym;
-		num=num+1;
-	}else{
-		for(int i=0; i<num; i++){	
-			if(iter->next==NULL){
-				iter->next=sym;
-				num= num+1;
-			}
-			iter = iter->next;
+int insertarTypeTab(typetab *tt, type *t){
+	type *iter = tt->root;
+	for (int i = 0; i < tt->num; ++i) {	
+		if(tt->num==0){
+			tt->root=t;
+			tt->num=tt->num+1;
+			return tt->num;
+		}
+		if(t->id==iter->id){
+			return -1;
+		}
+		if(iter->next==NULL){
+			iter->next=t;
+			tt->num= tt->num+1;
+			return tt->num;
 		}
 	}
 }
@@ -53,7 +42,7 @@ typetab* getCimaType(typestack *ts){
 		if(iter->next==NULL){
 			return iter;
 		}
-		iter = iter->next;
+		iter = iter->next; //iter->next es de tipo type pero iter es de tipo typetab
 	}
 	return NULL;
 }
@@ -61,15 +50,15 @@ typetab* getCimaType(typestack *ts){
 typetab* sacarTypeTab(typestack *ts){
 	typetab *iter = ts->root;
 	if(ts->num<=1){
-		ts.borrar();
+		borrarTypeStack(ts);
 	}else{
 		for(int i=0; i<ts->num-1; i++){	
 			if(iter->next->next==NULL){
-				typetab *aux= iter->next
-				free(iter->next)
+				typetab *aux= iter->next; //iter->next es de tipo type pero aux es de tipo typetab
+				free(iter->next);
 				return aux;
 			}
-			iter = iter->next;
+			iter = iter->next; //iter->next es de tipo type pero iter es de tipo typetab
 		}
 	}
 	return NULL;
