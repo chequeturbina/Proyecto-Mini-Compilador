@@ -135,6 +135,29 @@ lista_var: lista_var COMA ID { if (StackTS.getCima().getId($3.sval) == -1) {
            ;
 
 funciones: FUNC tipo ID PARI argumentos PARD INICIO declaraciones sentencias FIN funciones
+          {if (StackTS.getFondo().get($3.sval) != -1) {
+                StackTS.getFondo().addSym($3.sval, $2,-,-,"func");
+                StackDir.push(dir);
+                FuncType = $2.tipo;
+                FuncReturn == false;
+                dir = 0;
+                StackTT.push(tt);
+                StackTS.push(ts);
+                dir = StackDir.pop();
+                add_quad(code, "label",-,-,$3.sval);
+                L = newLabel();
+                backpatch(code, $9.next, L);
+                add_quad(code, "label", -, -, L);
+                StackTT.pop();
+                StackTS.pop();
+                dir = StackDir.pop();
+                StackTS.getCima().addArgs($3.sval, $5.lista);
+                if ($2.tipo != sin && FuncReturn == false) {
+                  yyerror("La funcion no tiene valor de retorno");
+                }
+            } else {
+              yyerror("El identific ador ya fue declarado");
+            }}
            | /*empty*/
            ;
 
@@ -149,8 +172,8 @@ lista_arg: lista_arg arg {$$.lista = $1.lista;
            ;
 
 arg: tipo_arg ID {
-        if(StackTS.getCima().getId(id.lexval) == -1){
-            StackTS.getCima().addSym(id.lexval,tipo,dir,"var");
+        if(StackTS.getCima().getId($2.sval) == -1){
+            StackTS.getCima().addSym($2.sval,tipo,dir,"var");
             dir = dir + StackTT.getCima().getTam(tipo);
         }else{
             yyerror("El identificador ya fue declarado"):
@@ -174,62 +197,62 @@ param_arr: CORI CORD param_arr1{
 sentencias: sentencias sentencia{
             L = newLabel();
             backpatch(code, sentencias.listnext,L);
-            sentencias.listnext = sentencia.listnext;
+            $1.listnext = $2.listnext;
             }
             | sentencia{
-                sentencias.listnext = sentencia.listnext;
+                $$.listnext = $1.listnext;
             };
 
 sentencia: SI expresion_booleana ENTONCES sentencias FIN %prec SIX{
             L = newLabel();
             backpatch(code,expresion_booleana.listtrue,L);
-            sentencia.listnext = combinar(expresion_booleana.listfalse, sentencias.listnext);
+            $$.listnext = combinar($2.listfalse, $4.listnext);
             }
-           | SI expresion_booleana sentencias1 SINO sentencias2 FIN{
+           | SI expresion_booleana sentencias SINO sentencias FIN{
                L = newLabel();
                L1 = newLabel();
-               backpatch(code, expresion_booleana.listtrue,L);
-               backpatch(code, expresion_booleana.listfalse,L1);
-               sentencia.listnext = combinar(sentencias1.listnext,sentencias2.listnext);
+               backpatch(code, $2.listtrue,L);
+               backpatch(code, $2.listfalse,L1);
+               $$.listnext = combinar($3.listnext,$5.listnext);
            }
            | MIENTRAS expresion_booleana HACER sentencias FIN{
                L = newLabel();
                L1 = newLabel();
-               backpatch(code,sentencias.listnext,L);
-               backpatch(code,expresion_booleana.listtrue,L1);
-               sentencia.listnext = expresion_booleana.listfalse;
+               backpatch(code,$4.listnext,L);
+               backpatch(code,$2.listtrue,L1);
+               $$.listnext = $2.listfalse;
                add_quad(code,"goto",-,-,L);
            }
            | HACER sentencia MIENTRAS_QUE expresion_booleana{
                L = newLabel();
-               backpatch(code,expresion_booleana.listtrue,L);
-               backpatch(code,sentencias.listnext,L1);
-               sentencia.listnext = expresion_booleana.listfalse;
+               backpatch(code,$4.listtrue,L);
+               backpatch(code,$2.listnext,L1);
+               $$.listnext = $4.listfalse;
                add_quad(code,"label",-,-,L);
            }
            | ID ASIG expresion{
-               if(StackTS.getCima().getId(id.lexval) != -1){
-                   t = StackTS.getCima().getTipo(id.lexval);
-                   d = StackTS.getCima().getDir(id.lexval);
-                   alfa = reducir(expresion.dir,expresion.tipo,t);
+               if(StackTS.getCima().getId($1.sval) != -1){
+                   t = StackTS.getCima().getTipo($1.sval);
+                   d = StackTS.getCima().getDir($1.sval);
+                   alfa = reducir($3.dir,$3.tipo,t);
                    add_quad(code,"=",alfa,-,"Id"+d);
                }else{
                    yyerror("El identificador no ha sido declarado");
                }
-               sentencia.listnext = null;
+               $$.listnext = NULL;
            }
            | variable ASIG expresion{
-               alfa = reducir(expresion.dir,expresion.tipo,variable.tipo);
-               add_quad(code,"=",alfa,-,variable.base[variable.dir]);
-               sentencia.listnext = null;
+               alfa = reducir($3.dir,$3.tipo,$1.tipo);
+               add_quad(code,"=",alfa,-,$1.base[$1.dir]);
+               $$.listnext = NULL;
            }
            | ESCRIBIR expresion{
-               add_quad(code,"print",expresion.dir,-,-);
-               sentencia.listnext = null;
+               add_quad(code,"print",$2.dir,-,-);
+               $$.listnext = NULL;
            }
            | LEER variable{
-               add_quad(code,"scan",-,-,variable.dir);
-               sentencia.listnext = null;
+               add_quad(code,"scan",-,-,$2.dir);
+               $$.listnext = NULL;
            }
            | DEVOLVER PC{
                if(FuncType = sin){
@@ -237,218 +260,218 @@ sentencia: SI expresion_booleana ENTONCES sentencias FIN %prec SIX{
                }else{
                    yyerror("La funcion debe retornar algun valor de tipo" + FuncType);
                }
-               sentencia.listnext = null;
+               $$.listnext = null;
            }
            | DEVOLVER expresion PC{
                if(FuncType != sin){
-                   alfa = reducir(expresion.dir, expresion.tipo, FuncType);
-                   add_quad(code,"return",expresion.dir,-,-);
+                   alfa = reducir($2.dir, $2.tipo, FuncType);
+                   add_quad(code,"return",$2.dir,-,-);
                    FuncReturn = true;
                }else{
                    yyerror("La funcion no puede retornar algun valor de tipo");
                }
-               sentencia.listnext = null;
+               $$.listnext = null;
            }
            | TERMINAR{
                I = newIndex();
                add_quad(code,"goto",-,-,I);
-               sentencia.listnext = newList();
-               sentencia.listnext.add(I);
+               $$.listnext = newList();
+               $$.listnext.add(I);
            };
 
-expresion_booleana: expresion_booleana1 DISY expresion_booleana2{
+expresion_booleana: expresion_booleana DISY expresion_booleana{
                         L = newLabel();
-                        backpatch(code, expresion_booleana1.listfalse,L);
-                        expresion_booleana.listtrue = combinar(expresion_booleana1.listtrue,expresion_booleana2.listtrue);
-                        expresion_booleana.listfalse = expresion_booleana2.listfalse;
+                        backpatch(code, $1.listfalse,L);
+                        $$.listtrue = combinar($1.listtrue,$3.listtrue);
+                        $$.listfalse = $3.listfalse;
                         add_quad(code,"label",-,-,L);
                     }
                     | expresion_booleana CONJ expresion_booleana{
                       L = newLabel();
-                      backpatch(code,expresion_booleana1.listtrue,L);
-                      expresion_booleana.listtrue = expresion_booleana2.listtrue;
-                      expresion_booleana.listfalse = combinar(expresion_booleana1.listfalse,expresion_booleana2.listfalse);
+                      backpatch(code,$1.listtrue,L);
+                      $$.listtrue = $3.listtrue;
+                      $$.listfalse = combinar($1.listfalse,$3.listfalse);
                       add_quad(code,"label",-,-,L);
                     }
-                    | NOT expresion_booleana1{
-                      expresion_booleana.listtrue = expresion_booleana1.listfalse;
-                      expresion_booleana.listfalse = expresion_booleana1.listtrue;
+                    | NOT expresion_booleana{
+                      $$.listtrue = $2.listfalse;
+                      $$.listfalse = $2.listtrue;
                     }
                     | relacional{
-                      expresion_booleana.listtrue = relacional.listtrue;
-                      expresion_booleana.listfalse = relacional.listfalse;
+                      $$.listtrue = $1.listtrue;
+                      $$.listfalse = $1.listfalse;
                     }
                     | VERDADERO{
                       I = newIndex();
-                      expresion_booleana.listtrue = newList();
-                      expresion_booleana.listtrue.add(I);
+                      $$.listtrue = newList();
+                      $$.listtrue.add(I);
                       add_quad(code,"goto",-,-,I);
-                      expresion_booleana.listfalse = null;
+                      $$.listfalse = NULL;
                     }
                     | FALSO{
                       I = newIndex();
-                      expresion_booleana.listtrue = null;
-                      expresion_booleana.listfalse = newList();
-                      expresion_booleana.listtrue.add(I);
+                      $$.listtrue = NULL;
+                      $$.listfalse = newList();
+                      $$.listtrue.add(I);
                       add_quad(code,"goto",-,-,I);
                     }
                     ;
 
-relacional: relacional1 MENOR relacional2{
-                relacional.listtrue = newList();
-                relacional.listfalse = newList();
+relacional: relacional MENOR relacional{
+                $$.listtrue = newList();
+                $$.listfalse = newList();
                 I = newIndex();
                 I1 = newIndex();
-                relacional.listtrue.add(I);
-                relacional.listfalse.add(I1);
-                relacional.tipo = max(relacional1.tipo, relacional2.tipo);
-                alfa1 = ampliar(relacional1.dir, relacional1.tipo, relacional.tipo);
-                alfa2 = ampliar(relacional2.dir, relacional2.tipo, relacional.tipo);
+                $$.listtrue.add(I);
+                $$.listfalse.add(I1);
+                $$.tipo = max($1.tipo, $3.tipo);
+                alfa1 = ampliar($1.dir, $1.tipo, $$.tipo);
+                alfa2 = ampliar($3.dir, $3.tipo, $$.tipo);
                 add_quad(code,"<",alfa1,alfa2,I);
                 add_quad(code,"goto",-,-,I1);
              }
-            | relacional1 MAYOR relacional2{
-                relacional.listtrue = newList();
-                relacional.listfalse = newList();
+            | relacional MAYOR relacional{
+                $$.listtrue = newList();
+                $$.listfalse = newList();
                 I = newIndex();
                 I1 = newIndex();
-                relacional.listtrue.add(I);
-                relacional.listfalse.add(I1);
-                relacional.tipo = max(relacional1.tipo, relacional2.tipo);
-                alfa1 = ampliar(relacional1.dir, relacional1.tipo, relacional.tipo);
-                alfa2 = ampliar(relacional2.dir, relacional2.tipo, relacional.tipo);
+                $$.listtrue.add(I);
+                $$.listfalse.add(I1);
+                $$.tipo = max($1.tipo, $3.tipo);
+                alfa1 = ampliar($1.dir, $1.tipo, $$.tipo);
+                alfa2 = ampliar($3.dir, $3.tipo, $$.tipo);
                 add_quad(code,">",alfa1,alfa2,I);
                 add_quad(code,"goto",-,-,I1);
             }
-            | relacional1 MENIGU relacional2{
-                relacional.listtrue = newList();
-                relacional.listfalse = newList();
+            | relacional MENIGU relacional{
+                $$.listtrue = newList();
+                $$.listfalse = newList();
                 I = newIndex();
                 I1 = newIndex();
-                relacional.listtrue.add(I);
-                relacional.listfalse.add(I1);
-                relacional.tipo = max(relacional1.tipo, relacional2.tipo);
-                alfa1 = ampliar(relacional1.dir, relacional1.tipo, relacional.tipo);
-                alfa2 = ampliar(relacional2.dir, relacional2.tipo, relacional.tipo);
+                $$.listtrue.add(I);
+                $$.listfalse.add(I1);
+                $$.tipo = max($1.tipo, $3.tipo);
+                alfa1 = ampliar($1.dir, $1.tipo, $$.tipo);
+                alfa2 = ampliar($3.dir, $3.tipo, $$.tipo);
                 add_quad(code,"<=",alfa1,alfa2,I);
                 add_quad(code,"goto",-,-,I1);
             }
             | relacional MAYIGU relacional{
-                relacional.listtrue = newList();
-                relacional.listfalse = newList();
+                $$.listtrue = newList();
+                $$.listfalse = newList();
                 I = newIndex();
                 I1 = newIndex();
-                relacional.listtrue.add(I);
-                relacional.listfalse.add(I1);
-                relacional.tipo = max(relacional1.tipo, relacional2.tipo);
-                alfa1 = ampliar(relacional1.dir, relacional1.tipo, relacional.tipo);
-                alfa2 = ampliar(relacional2.dir, relacional2.tipo, relacional.tipo);
+                $$.listtrue.add(I);
+                $$.listfalse.add(I1);
+                $$.tipo = max($1.tipo, $3.tipo);
+                alfa1 = ampliar($1.dir, $1.tipo, $$.tipo);
+                alfa2 = ampliar($3.dir, $3.tipo, $$.tipo);
                 add_quad(code,">=",alfa1,alfa2,I);
                 add_quad(code,"goto",-,-,I1);
             }
             | relacional IGUAL relacional{
-                relacional.listtrue = newList();
-                relacional.listfalse = newList();
+                $$.listtrue = newList();
+                $$.listfalse = newList();
                 I = newIndex();
                 I1 = newIndex();
-                relacional.listtrue.add(I);
-                relacional.listfalse.add(I1);
-                relacional.tipo = max(relacional1.tipo, relacional2.tipo);
-                alfa1 = ampliar(relacional1.dir, relacional1.tipo, relacional.tipo);
-                alfa2 = ampliar(relacional2.dir, relacional2.tipo, relacional.tipo);
+                $$.listtrue.add(I);
+                $$.listfalse.add(I1);
+                $$.tipo = max($1.tipo, $3.tipo);
+                alfa1 = ampliar($1.dir, $1.tipo, $$.tipo);
+                alfa2 = ampliar($3.dir, $3.tipo, $$.tipo);
                 add_quad(code,"==",alfa1,alfa2,I);
                 add_quad(code,"goto",-,-,I1);
             }
             | relacional DIF relacional{
-                relacional.listtrue = newList();
-                relacional.listfalse = newList();
+                $$.listtrue = newList();
+                $$.listfalse = newList();
                 I = newIndex();
                 I1 = newIndex();
-                relacional.listtrue.add(I);
-                relacional.listfalse.add(I1);
-                relacional.tipo = max(relacional1.tipo, relacional2.tipo);
-                alfa1 = ampliar(relacional1.dir, relacional1.tipo, relacional.tipo);
-                alfa2 = ampliar(relacional2.dir, relacional2.tipo, relacional.tipo);
+                $$.listtrue.add(I);
+                $$.listfalse.add(I1);
+                $$.tipo = max($1.tipo, $3.tipo);
+                alfa1 = ampliar($1.dir, $1.tipo, $$.tipo);
+                alfa2 = ampliar($3.dir, $3.tipo, $$.tipo);
                 add_quad(code,"<>",alfa1,alfa2,I);
                 add_quad(code,"goto",-,-,I1);
             }
             | expresion{
-              relacional.tipo = expresion.tipo;
-              relacional.dir = expresion.dir;
+              $$.tipo = $1.tipo;
+              $$.dir = $1.dir;
             }
             ;
 
-expresion: expresion1 MAS expresion2{
-              expresion.tipo = max(expresion1.tipo,expresion2.tipo);
-              expresion.dir = newTemp();
-              alfa1 = ampliar(expresion1.dir, expresion1.tipo, expresion.tipo);
-              alfa2 = ampliar(expresion2.dir,expresion2.tipo,expresion.tipo);
-              add_quad(code,"+",alfa1,alfa2,expresion.dir);
+expresion: expresion MAS expresion{
+              $$.tipo = max($1.tipo,$3.tipo);
+              $$.dir = newTemp();
+              alfa1 = ampliar($1.dir, $1.tipo, $$.tipo);
+              alfa2 = ampliar($3.dir,$3.tipo,$$.tipo);
+              add_quad(code,"+",alfa1,alfa2,$$.dir);
             }
            | expresion MENOS expresion{
-              expresion.tipo = max(expresion1.tipo,expresion2.tipo);
-              expresion.dir = newTemp();
-              alfa1 = ampliar(expresion1.dir, expresion1.tipo, expresion.tipo);
-              alfa2 = ampliar(expresion2.dir,expresion2.tipo,expresion.tipo);
-              add_quad(code,"-",alfa1,alfa2,expresion.dir);
+              $$.tipo = max($1.tipo,$3.tipo);
+              $$.dir = newTemp();
+              alfa1 = ampliar($1.dir, $1.tipo, $$.tipo);
+              alfa2 = ampliar($3.dir,$3.tipo,$$.tipo);
+              add_quad(code,"-",alfa1,alfa2,$$.dir);
            }
            | expresion MUL expresion{
-              expresion.tipo = max(expresion1.tipo,expresion2.tipo);
-              expresion.dir = newTemp();
-              alfa1 = ampliar(expresion1.dir, expresion1.tipo, expresion.tipo);
-              alfa2 = ampliar(expresion2.dir,expresion2.tipo,expresion.tipo);
-              add_quad(code,"*",alfa1,alfa2,expresion.dir);
+              $$.tipo = max($1.tipo,exp$3resion2.tipo);
+              $$.dir = newTemp();
+              alfa1 = ampliar($1.dir, $1.tipo, $$.tipo);
+              alfa2 = ampliar($3.dir,$3.tipo,$$.tipo);
+              add_quad(code,"*",alfa1,alfa2,$$.dir);
            }
            | expresion DIV expresion{
-              expresion.tipo = max(expresion1.tipo,expresion2.tipo);
-              expresion.dir = newTemp();
-              alfa1 = ampliar(expresion1.dir, expresion1.tipo, expresion.tipo);
-              alfa2 = ampliar(expresion2.dir,expresion2.tipo,expresion.tipo);
-              add_quad(code,"/",alfa1,alfa2,expresion.dir);
+              $$.tipo = max($1.tipo,$3.tipo);
+              $$.dir = newTemp();
+              alfa1 = ampliar($1.dir, $1.tipo, $$.tipo);
+              alfa2 = ampliar($3.dir,$3.tipo,$$.tipo);
+              add_quad(code,"/",alfa1,alfa2,$$.dir);
            }
            | expresion MOD expresion{
-              expresion.tipo = max(expresion1.tipo,expresion2.tipo);
-              expresion.dir = newTemp();
-              alfa1 = ampliar(expresion1.dir, expresion1.tipo, expresion.tipo);
-              alfa2 = ampliar(expresion2.dir,expresion2.tipo,expresion.tipo);
-              add_quad(code,"%",alfa1,alfa2,expresion.dir);
+              $$.tipo = max($1.tipo,$3.tipo);
+              $$.dir = newTemp();
+              alfa1 = ampliar($1.dir, $1.tipo, $$.tipo);
+              alfa2 = ampliar($3.dir,$3.tipo,$$.tipo);
+              add_quad(code,"%",alfa1,alfa2,$$.dir);
            }
-           | PARI expresion1 PARD{
-             expresion.dir = expresion1.dir;
-             expresion.tipo = expresion1.tipo;
+           | PARI expresion PARD{
+             $$.dir = $1.dir;
+             $$.tipo = $1.tipo;
            }
            | variable{
-             expresion.dir = newTemp();
-             expresion.tipo = variable.tipo;
-             add_quad(code,"*",variable.base[variable.dir],-,expresion.dir);
+             $$.dir = newTemp();
+             $$.tipo = $1.tipo;
+             add_quad(code,"*",$1.base[$1.dir],-,$$.dir);
            }
            | NUM{
-             expresion.tipo = num.tipo;
-             expresion.dir = num.val;
+             $$.tipo = $1.tipo;
+             $$.dir = $1.sval;
            } 
            | CADENA{
-             expresion.tipo = cadena;
-             expresion.dir = TablaDeCadenas.add(cadena);
+             $$.tipo = cadena;
+             $$.dir = TablaDeCadenas.add(cadena);
            }
            | CARACTER{
-             expresion.tipo = caracter;
-             expresion.dir = TablaDeCadenas.add(caracter);
+             $$.tipo = caracter;
+             $$.dir = TablaDeCadenas.add(caracter);
            }
            | ID PARI parametros PARD{
-             if(StackTS.getFondo().getId(id.lexval) != -1){
-               if(StackTS.getFondo().getVar(id.lexval) == "func"){
-                 lista = StackTS.getFondo().getArgs(id.lexval);
-                 if(lista.getTam() != parametros.getTam()){
+             if(StackTS.getFondo().getId($1.sval) != -1){
+               if(StackTS.getFondo().getVar($1.sval) == "func"){
+                 lista = StackTS.getFondo().getArgs($1.sval);
+                 if(lista.getTam() != $3.getTam()){
                    yyerror("El numero de argumentos no coincide");
                  }
-                 for(i=0,i<parametros.lista.getTam(),1){
-                   if(parametros[i] != lista[i]){
+                 for(i=0,i<$3.lista.getTam(),1){
+                   if($3[i] != lista[i]){
                      yyerror("El tipo de parametros no coincide");
                    }
                  }
-                 expresion.dir = newTemp();
-                 expresion.tipo = StackTS.getFondo().getTipo(id.lexval);
-                 add_quad(code,"=","call",id.lexval,expresion.dir);
+                 $$.dir = newTemp();
+                 $$.tipo = StackTS.getFondo().getTipo($1.sval);
+                 add_quad(code,"=","call",$1.sval,$$.dir);
                }
              }else{
                yyerror("El identificador no ha sido declarado");
@@ -466,20 +489,20 @@ variable: ID{
                 }
           }
           | arreglo{
-            variable.dir = arreglo.dir;
-            variable.base = arreglo.base;
-            variable.tipo = arreglo.tipo;
+            $$.dir = $1.dir;
+            $$.base = $1.base;
+            $$.tipo = $1.tipo;
           }
           | ID PUNTO ID{
-            if(StackTS.getFondo().getId(id.lexval) != -1){
-              t = StackTS.getFondo().getTipo(id.lexval);
+            if(StackTS.getFondo().getId($1.sval) != -1){
+              t = StackTS.getFondo().getTipo($1.sval);
               t1 = StackTT.getFondo().getTipo(t);
               if(t1 == "registro"){
                 tipoBase = StackTT.getFondo().getTipoBase(t);
-                if(tipoBase.getId(id2) != -1){
-                  variable.tipo = tipoBase.getType(id2);
-                  variable.dir = id2;
-                  variable.base = id1;
+                if(tipoBase.getId($3) != -1){
+                  $$.tipo = tipoBase.getType($3);
+                  $$.dir = $3;
+                  $$.base = $1;
                 }else{
                   yyerror("El id no existe en la estructura");
                 }
@@ -493,15 +516,15 @@ variable: ID{
           ;
 
 arreglo: ID CORI expresion CORD{
-            if(StackTS.getCima().getId(id.lexval) != -1){
-              t = StackTS.getCima().getTipo(id.lexval);
+            if(StackTS.getCima().getId($1.sval) != -1){
+              t = StackTS.getCima().getTipo($1.sval);
               if(StackTT.getCima().getTipo(t) == "array"){
-                if(expresion.tipo == ent){
-                  arreglo.base = id.lexval;
-                  arreglo.tipo = StackTT.getCima().getTipoBase(t);
-                  arreglo.tam = StackTT.getCima().getTipo(arreglo.tipo);
-                  arreglo.dir = newTemp();
-                  add_quad(code,"*",expresion.dir,arreglo.tam,arreglo.dir);
+                if($3.tipo == ent){
+                  $$.base = $1.sval;
+                  $$.tipo = StackTT.getCima().getTipoBase(t);
+                  $$.tam = StackTT.getCima().getTipo($$.tipo);
+                  $$.dir = newTemp();
+                  add_quad(code,"*",$3.dir,$$.tam,$$.dir);
                 }
               }else{
                 yyerror("La expresion para un indice debe ser de tipo entero");
@@ -510,16 +533,16 @@ arreglo: ID CORI expresion CORD{
               yyerror("El identificador no ha sido declarado");
             }
           }
-         | arreglo1 CORI expresion CORD{
-           if(StackTT.getCima().getTipoBase(arreglo1.tipo) == "array"){
-             if(expresion.tipo == ent){
-               arreglo.base = arreglo1.base;
-               arreglo.tipo = StackTT.getCima().getTipoBase(arreglo1.tipo);
-               arreglo.tam = StackTT.getCima().getTipo(arreglo.tipo);
+         | arreglo CORI expresion CORD{
+           if(StackTT.getCima().getTipoBase($1.tipo) == "array"){
+             if($3.tipo == ent){
+               $$.base = $1.base;
+               $$.tipo = StackTT.getCima().getTipoBase($1.tipo);
+               $$.tam = StackTT.getCima().getTipo($$.tipo);
                temp = newTemp();
-               arreglo.dir = newTemp();
-               add_quad(code,"*",expresion.dir,arreglo.tam,temp);
-               add_quad(code,"+",arreglo1.dir,temp,arreglo.dir);
+               $$.dir = newTemp();
+               add_quad(code,"*",$3.dir,$$.tam,temp);
+               add_quad(code,"+",$1.dir,temp,$$.dir);
              }else{
                yyerror("La expresion par aun indice debe ser de tipo entero");
              }
@@ -530,22 +553,22 @@ arreglo: ID CORI expresion CORD{
          ;
 
 parametros: lista_param{
-              parametros.lista = lista_param.lista;
+              $$.lista = $1.lista;
              }
             | /*empty*/{
-              parametros.lista = null;
+              $$.lista = null;
             }
             ;
 
 lista_param: lista_param1 COMA expresion{
-                lista_param.lista = lista_param1.lista;
-                lista_param.lista.add(param.tipo);
-                add_quad(code,"param",expresion.dir,-,-);
+                $$.lista = $1.lista;
+                $$.lista.add($3.tipo);
+                add_quad(code,"param",$3.dir,-,-);
               }
              | expresion{
-               lista_param.lista = newListaParam();
-               lista_param.lista.add(expresion.tipo);
-               add_quad(code,"param",expresion.dir,-,-);
+               $$.lista = newListaParam();
+               $$.lista.add($3.tipo);
+               add_quad(code,"param",$3.dir,-,-);
              }
              ;
 
