@@ -25,11 +25,6 @@ extern int yylineno;
         char *sval;
     } id;
 
-    struct{
-      int declaraciones;
-    } dec;
-
-    base bas;
     sentencia senten;
     expresion expr;
     condicional condi;
