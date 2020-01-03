@@ -83,7 +83,7 @@ extern int yylineno;
 %type<expr> expresion variable arreglo
 %type<condi> expresion_booleana relacional
 %type<args_list> argumentos lista_arg parametros lista_param
-%type<tval> declaraciones tipo_registro tipo base tipo_arreglo tipo_arg param_arr 
+%type<tval> declaraciones tipo_registro tipo base tipo_arreglo tipo_arg param_arr lista_var 
 
 /*Inicializar el Análisis*/
 %start programa
