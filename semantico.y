@@ -24,8 +24,21 @@ extern int yylineno;
     struct {
         char *sval;
     } id;
+
+    struct{
+      int declaraciones;
+    } dec;
+
+    base bas;
+    sentencia senten;
+    expresion expr;
+    condicional condi;
+    args_list args_list;
+    tval tval;
+
 }
 
+/*Declaración de tokens, precedencia, asociación de operadores de la gramática*/
 %token<num> NUM
 %token<id> ID
 
@@ -69,6 +82,16 @@ extern int yylineno;
 %nonassoc PARI PARD CORI CORD
 %nonassoc SIX
 %nonassoc SINO
+
+/*Declaración de los tipos para los simbolos no terminales*/
+%type<senten> sentencias sentencia
+%type<expr> expresion variable arreglo
+%type<condi> expresion_booleana relacional
+%type<args_list> argumentos lista_arg parametros lista_param
+%type<tval> declaraciones tipo_registro tipo base tipo_arreglo tipo_arg param_arr 
+
+/*Inicializar el Análisis*/
+%start programa
 
 %%
 
