@@ -56,7 +56,8 @@ caracter '[a-zA-Z]'
                 return NUM;
             }
 
-{caracter}  {                
+{caracter}  {        
+                yylval.car.tipo = 4;        
                 yylval.car.sval = yytext[1];
                 printf("<CARACTER>, ");
                 return CARACTER;

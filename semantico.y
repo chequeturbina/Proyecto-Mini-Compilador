@@ -154,7 +154,7 @@ lista_var: lista_var COMA ID { if (StackTS.getCima().getId($3.sval) == -1) {
 
 funciones: FUNC tipo ID PARI argumentos PARD INICIO declaraciones sentencias FIN funciones
           {if (StackTS.getFondo().get($3.sval) != -1) {
-                StackTS.getFondo().addSym($3.sval, $2,-,-,"func");
+                StackTS.getFondo().addSym($3.sval, $2,"","","func");
                 StackDir.push(dir);
                 FuncType = $2.tipo;
                 FuncReturn == false;
@@ -162,10 +162,10 @@ funciones: FUNC tipo ID PARI argumentos PARD INICIO declaraciones sentencias FIN
                 StackTT.push(tt);
                 StackTS.push(ts);
                 dir = StackDir.pop();
-                add_quad(code, "label",-,-,$3.sval);
+                add_quad(code, "label","","",$3.sval);
                 L = newLabel();
                 backpatch(code, $9.next, L);
-                add_quad(code, "label", -, -, L);
+                add_quad(code, "label","","", L);
                 StackTT.pop();
                 StackTS.pop();
                 dir = StackDir.pop();
@@ -205,7 +205,7 @@ tipo_arg: base param_arr{
             };
 
 param_arr: CORI CORD param_arr1{
-        $$.tipo = StackTT.getCima().addTipo("array", -, $3.tipo);
+        $$.tipo = StackTT.getCima().addTipo("array", "", $3.tipo);
         }
            | /*empty*/ {
                $$.tipo = base;
@@ -239,21 +239,21 @@ sentencia: SI expresion_booleana ENTONCES sentencias FIN %prec SIX{
                backpatch(code,$4.listnext,L);
                backpatch(code,$2.listtrue,L1);
                $$.listnext = $2.listfalse;
-               add_quad(code,"goto",-,-,L);
+               add_quad(code,"goto","","",L);
            }
            | HACER sentencia MIENTRAS_QUE expresion_booleana{
                L = newLabel();
                backpatch(code,$4.listtrue,L);
                backpatch(code,$2.listnext,L1);
                $$.listnext = $4.listfalse;
-               add_quad(code,"label",-,-,L);
+               add_quad(code,"label","","",L);
            }
            | ID ASIG expresion{
                if(StackTS.getCima().getId($1.sval) != -1){
                    t = StackTS.getCima().getTipo($1.sval);
                    d = StackTS.getCima().getDir($1.sval);
                    alfa = reducir($3.dir,$3.tipo,t);
-                   add_quad(code,"=",alfa,-,"Id"+d);
+                   add_quad(code,"=",alfa,"","Id"+d);
                }else{
                    yyerror("El identificador no ha sido declarado");
                }
@@ -261,20 +261,20 @@ sentencia: SI expresion_booleana ENTONCES sentencias FIN %prec SIX{
            }
            | variable ASIG expresion{
                alfa = reducir($3.dir,$3.tipo,$1.tipo);
-               add_quad(code,"=",alfa,-,$1.base[$1.dir]);
+               add_quad(code,"=",alfa,"",$1.base[$1.dir]);
                $$.listnext = NULL;
            }
            | ESCRIBIR expresion{
-               add_quad(code,"print",$2.dir,-,-);
+               add_quad(code,"print",$2.dir,"","");
                $$.listnext = NULL;
            }
            | LEER variable{
-               add_quad(code,"scan",-,-,$2.dir);
+               add_quad(code,"scan","","",$2.dir);
                $$.listnext = NULL;
            }
            | DEVOLVER PC{
                if(FuncType = sin){
-                   add_quad(code,"return",-,-,-);
+                   add_quad(code,"return","","","");
                }else{
                    yyerror("La funcion debe retornar algun valor de tipo" + FuncType);
                }
@@ -283,7 +283,7 @@ sentencia: SI expresion_booleana ENTONCES sentencias FIN %prec SIX{
            | DEVOLVER expresion PC{
                if(FuncType != sin){
                    alfa = reducir($2.dir, $2.tipo, FuncType);
-                   add_quad(code,"return",$2.dir,-,-);
+                   add_quad(code,"return",$2.dir,"","");
                    FuncReturn = true;
                }else{
                    yyerror("La funcion no puede retornar algun valor de tipo");
@@ -292,7 +292,7 @@ sentencia: SI expresion_booleana ENTONCES sentencias FIN %prec SIX{
            }
            | TERMINAR{
                I = newIndex();
-               add_quad(code,"goto",-,-,I);
+               add_quad(code,"goto","","",I);
                $$.listnext = newList();
                $$.listnext.add(I);
            };
@@ -302,14 +302,14 @@ expresion_booleana: expresion_booleana DISY expresion_booleana{
                         backpatch(code, $1.listfalse,L);
                         $$.listtrue = combinar($1.listtrue,$3.listtrue);
                         $$.listfalse = $3.listfalse;
-                        add_quad(code,"label",-,-,L);
+                        add_quad(code,"label","","",L);
                     }
                     | expresion_booleana CONJ expresion_booleana{
                       L = newLabel();
                       backpatch(code,$1.listtrue,L);
                       $$.listtrue = $3.listtrue;
                       $$.listfalse = combinar($1.listfalse,$3.listfalse);
-                      add_quad(code,"label",-,-,L);
+                      add_quad(code,"label","","",L);
                     }
                     | NOT expresion_booleana{
                       $$.listtrue = $2.listfalse;
@@ -323,7 +323,7 @@ expresion_booleana: expresion_booleana DISY expresion_booleana{
                       I = newIndex();
                       $$.listtrue = newList();
                       $$.listtrue.add(I);
-                      add_quad(code,"goto",-,-,I);
+                      add_quad(code,"goto","","",I);
                       $$.listfalse = NULL;
                     }
                     | FALSO{
@@ -331,7 +331,7 @@ expresion_booleana: expresion_booleana DISY expresion_booleana{
                       $$.listtrue = NULL;
                       $$.listfalse = newList();
                       $$.listtrue.add(I);
-                      add_quad(code,"goto",-,-,I);
+                      add_quad(code,"goto","","",I);
                     }
                     ;
 
@@ -346,7 +346,7 @@ relacional: relacional MENOR relacional{
                 alfa1 = ampliar($1.dir, $1.tipo, $$.tipo);
                 alfa2 = ampliar($3.dir, $3.tipo, $$.tipo);
                 add_quad(code,"<",alfa1,alfa2,I);
-                add_quad(code,"goto",-,-,I1);
+                add_quad(code,"goto","","",I1);
              }
             | relacional MAYOR relacional{
                 $$.listtrue = newList();
@@ -359,7 +359,7 @@ relacional: relacional MENOR relacional{
                 alfa1 = ampliar($1.dir, $1.tipo, $$.tipo);
                 alfa2 = ampliar($3.dir, $3.tipo, $$.tipo);
                 add_quad(code,">",alfa1,alfa2,I);
-                add_quad(code,"goto",-,-,I1);
+                add_quad(code,"goto","","",I1);
             }
             | relacional MENIGU relacional{
                 $$.listtrue = newList();
@@ -372,7 +372,7 @@ relacional: relacional MENOR relacional{
                 alfa1 = ampliar($1.dir, $1.tipo, $$.tipo);
                 alfa2 = ampliar($3.dir, $3.tipo, $$.tipo);
                 add_quad(code,"<=",alfa1,alfa2,I);
-                add_quad(code,"goto",-,-,I1);
+                add_quad(code,"goto","","",I1);
             }
             | relacional MAYIGU relacional{
                 $$.listtrue = newList();
@@ -385,7 +385,7 @@ relacional: relacional MENOR relacional{
                 alfa1 = ampliar($1.dir, $1.tipo, $$.tipo);
                 alfa2 = ampliar($3.dir, $3.tipo, $$.tipo);
                 add_quad(code,">=",alfa1,alfa2,I);
-                add_quad(code,"goto",-,-,I1);
+                add_quad(code,"goto","","",I1);
             }
             | relacional IGUAL relacional{
                 $$.listtrue = newList();
@@ -398,7 +398,7 @@ relacional: relacional MENOR relacional{
                 alfa1 = ampliar($1.dir, $1.tipo, $$.tipo);
                 alfa2 = ampliar($3.dir, $3.tipo, $$.tipo);
                 add_quad(code,"==",alfa1,alfa2,I);
-                add_quad(code,"goto",-,-,I1);
+                add_quad(code,"goto","","",I1);
             }
             | relacional DIF relacional{
                 $$.listtrue = newList();
@@ -411,7 +411,7 @@ relacional: relacional MENOR relacional{
                 alfa1 = ampliar($1.dir, $1.tipo, $$.tipo);
                 alfa2 = ampliar($3.dir, $3.tipo, $$.tipo);
                 add_quad(code,"<>",alfa1,alfa2,I);
-                add_quad(code,"goto",-,-,I1);
+                add_quad(code,"goto","","",I1);
             }
             | expresion{
               $$.tipo = $1.tipo;
@@ -461,7 +461,7 @@ expresion: expresion MAS expresion{
            | variable{
              $$.dir = newTemp();
              $$.tipo = $1.tipo;
-             add_quad(code,"*",$1.base[$1.dir],-,$$.dir);
+             add_quad(code,"*",$1.base[$1.dir],"",$$.dir);
            }
            | NUM{
              $$.tipo = $1.tipo;
@@ -581,12 +581,12 @@ parametros: lista_param{
 lista_param: lista_param1 COMA expresion{
                 $$.lista = $1.lista;
                 $$.lista.add($3.tipo);
-                add_quad(code,"param",$3.dir,-,-);
+                add_quad(code,"param",$3.dir,"","");
               }
              | expresion{
                $$.lista = newListaParam();
                $$.lista.add($3.tipo);
-               add_quad(code,"param",$3.dir,-,-);
+               add_quad(code,"param",$3.dir,"","");
              }
              ;
 
