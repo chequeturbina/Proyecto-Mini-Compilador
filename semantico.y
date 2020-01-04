@@ -106,16 +106,16 @@ declaraciones: tipo {type = $1.tipo} lista_var declaraciones
                | {}
                ;
 
-tipo_registro: REGISTRO INICIO declaraciones FIN { ts = newSymTab();
-                                                   tt = newTypeTab();
+tipo_registro: REGISTRO INICIO declaraciones FIN { tablaS *ts = newSymTab();
+                                                   tablaT *tt = newTypeTab();
                                                    StackDir.push(dir);
                                                    dir = 0;
                                                    StackTT.push(tt);
                                                    StackTS.push(ts);
                                                    dir = StackDir.pop();
-                                                   tt1 = StackTT.pop();
+                                                   tablaT *tt1 = StackTT.pop();
                                                    StackTS.getCima().setTT(tt1);
-                                                   ts1 = StackTS.pop();
+                                                   tablaS *ts1 = StackTS.pop();
                                                    dir = StackDir.pop();
                                                    type = StackTT.getCima().addTipo("registro", 0, ts1);}
                ;
@@ -163,7 +163,7 @@ funciones: FUNC tipo ID PARI argumentos PARD INICIO declaraciones sentencias FIN
                 StackTS.push(ts);
                 dir = StackDir.pop();
                 add_quad(code, "label","","",$3.sval);
-                L = newLabel();
+                label *L = newLabel();
                 backpatch(code, $9.next, L);
                 add_quad(code, "label","","", L);
                 StackTT.pop();
