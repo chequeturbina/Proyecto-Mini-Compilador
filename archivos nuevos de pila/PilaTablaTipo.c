@@ -1,11 +1,10 @@
-#include "pilaTipos.h"
-#include "pilaTablaTipo.h"
+#include "PilaTablaTipo.h"
 #include "tablaTipo.h"
 #include <stdio.h>
 #include <stdlib.h>
 
 
-typestack *crearTypeStack(){
+typestack *newStackTT(){
     typestack *nuevaPTT = malloc(sizeof(typestack));
     if(nuevaPTT){
         nuevaPTT->root = NULL;
@@ -30,7 +29,7 @@ void borrarTypeStack(typestack *ptt){
   }
 }
 
-typetab* getCimaType(typestack *ptt){
+typetab* getCimaTT(typestack *ptt){
     typetab *aux = ptt->root;
     typetab *aux_ant;
     while(aux != NULL){
@@ -51,7 +50,7 @@ typetab* getFondoType(typestack *ptt){
         return aux;*/
 }
 
-void insertarTypeTab(typestack *ptt, typetab *type_tab){
+void pushTT(typestack *ptt, typetab *type_tab){
     if(ptt){    //Si existe la pila
         if (ptt->root == NULL){     //La pila esta vacia
             ptt->root = type_tab;
@@ -69,12 +68,12 @@ void insertarTypeTab(typestack *ptt, typetab *type_tab){
     }
 }
 
-typetab* sacarTypeTab(typestack *ptt){
+typetab* popTT(typestack *ptt){
     if(ptt){    //Si existe la pila
         if (ptt->root == NULL){     //La pila esta vacia
             printf("ERROR: La pila de tabla de simbolos esta vacia");
         }else{                      //La pila no esta vacia
-            typetab *cima = getCimaType(ptt);
+            typetab *cima = getCimaTT(ptt);
             //typetab *aux = cima;
             ptt->root = cima->next;
             ptt->num--;

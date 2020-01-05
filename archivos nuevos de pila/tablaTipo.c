@@ -93,7 +93,7 @@ type *crearTipoNativo(int id, char* nombre, tipoBase* tb, int size){
 }
 
 /*Crea una lista de tipos*/
-typetab* crearTypeTab(){
+typetab* newTypeTab(){
     typetab* tt= malloc(sizeof(typetab));
     tipo *tipo_base;
     tipoBase *arquetipo;

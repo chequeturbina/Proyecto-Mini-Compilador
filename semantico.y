@@ -95,8 +95,8 @@ programa: declaraciones funciones { dir = 0
                                     StackTS = newStackTS();
                                     ts = newSymTab();
                                     tt = newTypeTab();
-                                    StackTT.push(tt);
-                                    StackTS.push(ts);
+                                    StackTT.pushTT(tt);
+                                    StackTS.pushTS(ts);
                                     TablaDeCadenas = newTablaCadenas();
                                     }
           ;
@@ -110,14 +110,14 @@ tipo_registro: REGISTRO INICIO declaraciones FIN { tablaS *ts = newSymTab();
                                                    tablaT *tt = newTypeTab();
                                                    StackDir.push(dir);
                                                    dir = 0;
-                                                   StackTT.push(tt);
-                                                   StackTS.push(ts);
+                                                   StackTT.pushTT(tt);
+                                                   StackTS.pushTS(ts);
                                                    dir = StackDir.pop();
-                                                   tablaT *tt1 = StackTT.pop();
-                                                   StackTS.getCima().setTT(tt1);
-                                                   tablaS *ts1 = StackTS.pop();
+                                                   tablaT *tt1 = StackTT.popTT();
+                                                   StackTS.getCimaTS().setTT(tt1);
+                                                   tablaS *ts1 = StackTS.popTS();
                                                    dir = StackDir.pop();
-                                                   type = StackTT.getCima().addTipo("registro", 0, ts1);}
+                                                   type = StackTT.getCimaTT().addTipo("registro", 0, ts1);}
                ;
 
 tipo: base {base = base.tipo;} tipo_arreglo {$$.tipo = $2.tipo;}
@@ -131,45 +131,45 @@ base: ENT {$$.tipo = 1;}
       ;
 
 tipo_arreglo: CORI NUM CORD tipo_arreglo {if ($2.tipo == 1 && $2.sval) {
-                                                $$.tipo = StackTT.getCima().addTipo("array", $2.sval, $4.tipo);
+                                                $$.tipo = StackTT.getCimaTT().addTipo("array", $2.sval, $4.tipo);
                                           } else {
                                             yyerror("EL indice tiene que ser entero y mayor que cero")
                                           }}
               | $$.tipo = base;
               ;
 
-lista_var: lista_var COMA ID { if (StackTS.getCima().getId($3.sval) == -1) {
-                                  StackTS.getCima().addSym($3.sval, dir, "var");
-                                  dir = dir + StackTT.getCima().getTam(tipo);
+lista_var: lista_var COMA ID { if (StackTS.getCimaTS().getIdSym($3.sval) == -1) {
+                                  StackTS.getCimaTS().addSym($3.sval, dir, "var");
+                                  dir = dir + StackTT.getCimaTT().getTam(tipo);
                                } else {
                                  yyerror("El identificador ya fue declarado");
                                }}
-           | ID { if (StackTS.getCima().getId($1.sval) == -1) {
-                                  StackTS.getCima().addSym($1.sval, dir, "var");
-                                  dir = dir + StackTT.getCima().getTam(tipo);
+           | ID { if (StackTS.getCimaTS().getId($1.sval) == -1) {
+                                  StackTS.getCimaTS().addSym($1.sval, dir, "var");
+                                  dir = dir + StackTT.getCimaTT().getTam(tipo);
                                } else {
                                  yyerror("El identificador ya fue declarado");
                                }}
            ;
 
 funciones: FUNC tipo ID PARI argumentos PARD INICIO declaraciones sentencias FIN funciones
-          {if (StackTS.getFondo().get($3.sval) != -1) {
+          {if (StackTS.getFondoSym().get($3.sval) != -1) {
                 StackTS.getFondo().addSym($3.sval, $2,"","","func");
                 StackDir.push(dir);
                 FuncType = $2.tipo;
                 FuncReturn == false;
                 dir = 0;
-                StackTT.push(tt);
-                StackTS.push(ts);
+                StackTT.pushTT(tt);
+                StackTS.pushTS(ts);
                 dir = StackDir.pop();
                 add_quad(code, "label","","",$3.sval);
                 label *L = newLabel();
                 backpatch(code, $9.next, L);
                 add_quad(code, "label","","", L);
-                StackTT.pop();
-                StackTS.pop();
+                StackTT.popTT();
+                StackTS.popTS();
                 dir = StackDir.pop();
-                StackTS.getCima().addArgs($3.sval, $5.lista);
+                StackTS.getCimaTS().addArgs($3.sval, $5.lista);
                 if ($2.tipo != sin && FuncReturn == false) {
                   yyerror("La funcion no tiene valor de retorno");
                 }
@@ -190,9 +190,9 @@ lista_arg: lista_arg arg {$$.lista = $1.lista;
            ;
 
 arg: tipo_arg ID {
-        if(StackTS.getCima().getId($2.sval) == -1){
-            StackTS.getCima().addSym($2.sval,tipo,dir,"var");
-            dir = dir + StackTT.getCima().getTam(tipo);
+        if(StackTS.getCimaTS().getId($2.sval) == -1){
+            StackTS.getCimaTS().addSym($2.sval,tipo,dir,"var");
+            dir = dir + StackTT.getCimaTT().getTam(tipo);
         }else{
             yyerror("El identificador ya fue declarado"):
         }
@@ -205,7 +205,7 @@ tipo_arg: base param_arr{
             };
 
 param_arr: CORI CORD param_arr1{
-        $$.tipo = StackTT.getCima().addTipo("array","", $3.tipo);
+        $$.tipo = StackTT.getCimaTT().addTipo("array","", $3.tipo);
         }
            | /*empty*/ {
                $$.tipo = base;
@@ -249,9 +249,9 @@ sentencia: SI expresion_booleana ENTONCES sentencias FIN %prec SIX{
                add_quad(code,"label","","",L);
            }
            | ID ASIG expresion{
-               if(StackTS.getCima().getId($1.sval) != -1){
-                   int t = StackTS.getCima().getTipo($1.sval);
-                   int d = StackTS.getCima().getDir($1.sval);
+               if(StackTS.getCimaTS().getId($1.sval) != -1){
+                   int t = StackTS.getCimaTS().getTipo($1.sval);
+                   int d = StackTS.getCimaTS().getDir($1.sval);
                    char *alfa = reducir($3.dir,$3.tipo,t);
                    add_quad(code,"=",alfa,"","Id"+d);
                }else{
@@ -498,9 +498,9 @@ expresion: expresion MAS expresion{
            ;
 
 variable: ID{
-            if(buscar(getCima(StackTS),$1)!=-1){
-              $$.dir = getDir(getCima(StackTS),$1);
-              $$.tipo = getTipo(getCima(StackTS),$1);
+            if(buscar(getCimaTS(StackTS),$1)!=-1){
+              $$.dir = getDir(getCimaTS(StackTS),$1);
+              $$.tipo = getTipo(getCimaTS(StackTS),$1);
               $$.base = NULL;
               }else{
                 yyerror("variable ya definida");
@@ -516,7 +516,7 @@ variable: ID{
               int t = StackTS.getFondo().getTipo($1.sval);
               char *t1 = StackTT.getFondo().getTipo(t);
               if(t1 == "registro"){
-                tipoBase = StackTT.getFondo().getTipoBase(t);
+                tipoBase *tipoBase = StackTT.getFondo().getTipoBase(t);
                 if(tipoBase.getId($3) != -1){
                   $$.tipo = tipoBase.getType($3);
                   $$.dir = $3;
@@ -534,13 +534,13 @@ variable: ID{
           ;
 
 arreglo: ID CORI expresion CORD{
-            if(StackTS.getCima().getId($1.sval) != -1){
-              int t = StackTS.getCima().getTipo($1.sval);
-              if(StackTT.getCima().getTipo(t) == "array"){
+            if(StackTS.getCimaTS().getId($1.sval) != -1){
+              int t = StackTS.getCimaTS().getTipo($1.sval);
+              if(StackTT.getCimaTT().getTipo(t) == "array"){
                 if($3.tipo == ent){
                   $$.base = $1.sval;
-                  $$.tipo = StackTT.getCima().getTipoBase(t);
-                  $$.tam = StackTT.getCima().getTipo($$.tipo);
+                  $$.tipo = StackTT.getCimaTT().getTipoBase(t);
+                  $$.tam = StackTT.getCimaTT().getTipo($$.tipo);
                   $$.dir = newTemp();
                   add_quad(code,"*",$3.dir,$$.tam,$$.dir);
                 }
@@ -552,11 +552,11 @@ arreglo: ID CORI expresion CORD{
             }
           }
          | arreglo CORI expresion CORD{
-           if(StackTT.getCima().getTipoBase($1.tipo) == "array"){
+           if(StackTT.getCimaTT().getTipoBase($1.tipo) == "array"){
              if($3.tipo == ent){
                $$.base = $1.base;
-               $$.tipo = StackTT.getCima().getTipoBase($1.tipo);
-               $$.tam = StackTT.getCima().getTipo($$.tipo);
+               $$.tipo = StackTT.getCimaTT().getTipoBase($1.tipo);
+               $$.tam = StackTT.getCimaTT().getTipo($$.tipo);
                int temp = newTemp();
                $$.dir = newTemp();
                add_quad(code,"*",$3.dir,$$.tam,temp);
@@ -574,7 +574,7 @@ parametros: lista_param{
               $$.lista = $1.lista;
              }
             | /*empty*/{
-              $$.lista = null;
+              $$.lista = NULL;
             }
             ;
 

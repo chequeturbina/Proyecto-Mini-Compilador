@@ -3,7 +3,8 @@
 #include <stdio.h>
 #include "tablaSimbol.h"
 #include "pilaTablaSimbol.h"
-symstack *crearSymStack(){
+
+symstack *newStackTS(){
     symstack *nuevaPTS = malloc(sizeof(symstack));
     if(nuevaPTS){
         nuevaPTS->root = NULL;
@@ -28,7 +29,7 @@ void borrarSymStack(symstack *pts){
   }
 }
 
-symtab* getCimaSym(symstack *pts){
+symtab* getCimaTS(symstack *pts){
     symtab *aux = pts->root;
     symtab *aux_ant;
     while(aux != NULL){
@@ -49,7 +50,7 @@ symtab* getFondoSym(symstack *pts){
         return aux;*/
 }
 
-void insertarSymTab(symstack *pts, symtab *sym_tab){
+void pushTS(symstack *pts, symtab *sym_tab){
     if(pts){    //Si existe la pila
         if (pts->root == NULL){     //La pila esta vacia
             pts->root = sym_tab;
@@ -67,12 +68,12 @@ void insertarSymTab(symstack *pts, symtab *sym_tab){
     }
 }
 
-symtab* sacarSymTab(symstack *pts){
+symtab* popTS(symstack *pts){
     if(pts){    //Si existe la pila
         if (pts->root == NULL){     //La pila esta vacia
             printf("ERROR: La pila de tabla de simbolos esta vacia");
         }else{                      //La pila no esta vacia
-            symtab *cima = getCimaSym(pts);
+            symtab *cima = getCimaTS(pts);
             //symtab *aux = cima;
             pts->root = cima->next;
             pts->num--;
